@@ -15,10 +15,12 @@
 # FUSES ........ Parameters for avrdude to flash the fuses appropriately.
 
 DEVICE     = atmega324p
-CLOCK      = 8000000
+#CLOCK      = 8000000
+CLOCK      = 16000000
 PROGRAMMER = -c stk500v2 -P /dev/tty.usbserial-FTTBQ2KPB
-OBJECTS    = main.o amiga_keyboard.o
-FUSES      = -U hfuse:w:0x99:m -U lfuse:w:0xc2:m
+OBJECTS    = main.o amiga_keyb_if.o c64_keyb_sim.o uart.o
+#FUSES      = -U hfuse:w:0x99:m -U lfuse:w:0xc2:m
+FUSES      = -U hfuse:w:0xD9:m -U lfuse:w:0xc0:m
 #FUSES      = -U lfuse:w:0x42:m -U hfuse:w:0xdf:m -U efuse:w:0x01:m
 # http://www.engbedded.com/fusecalc/
 # ATMega8 fuse bits (fuse bits for other devices are different!):
@@ -62,10 +64,10 @@ FUSES      = -U hfuse:w:0x99:m -U lfuse:w:0xc2:m
 # Tune the lines below only if you know what you are doing:
 
 AVRDUDE = avrdude $(PROGRAMMER) -p $(DEVICE)
-COMPILE = avr-gcc -Wall -Os -DF_CPU=$(CLOCK) -mmcu=$(DEVICE)
+COMPILE = avr-gcc -Wall -O2 -DF_CPU=$(CLOCK) -mmcu=$(DEVICE)
 
 # symbolic targets:
-all:	amiga_keyboard.hex
+all:	main.hex
 
 .c.o:
 	$(COMPILE) -c $< -o $@
@@ -81,7 +83,7 @@ all:	amiga_keyboard.hex
 	$(COMPILE) -S $< -o $@
 
 flash:	all
-	$(AVRDUDE) -U flash:w:amiga_keyboard.hex:i
+	$(AVRDUDE) -U flash:w:main.hex:i
 
 fuse:
 	$(AVRDUDE) $(FUSES)
@@ -91,24 +93,24 @@ install: flash fuse
 
 # if you use a bootloader, change the command below appropriately:
 load: all
-	bootloadHID amiga_keyboard.hex
+	bootloadHID main.hex
 
 clean:
-	rm -f main.hex amiga_keyboard.elf $(OBJECTS)
+	rm -f main.hex main.elf $(OBJECTS)
 
 # file targets:
-amiga_keyboard.elf: $(OBJECTS)
-	$(COMPILE) -o amiga_keyboard.elf $(OBJECTS)
+main.elf: $(OBJECTS)
+	$(COMPILE) -o main.elf $(OBJECTS)
 
-amiga_keyboard.hex: amiga_keyboard.elf
-	rm -f amiga_keyboard.hex
-	avr-objcopy -j .text -j .data -O ihex amiga_keyboard.elf amiga_keyboard.hex
+main.hex: main.elf
+	rm -f main.hex
+	avr-objcopy -j .text -j .data -O ihex main.elf main.hex
 # If you have an EEPROM section, you must also create a hex file for the
 # EEPROM and add it to the "flash" target.
 
 # Targets for code debugging and analysis:
-disasm:	amiga_keyboard.elf
-	avr-objdump -d amiga_keyboard.elf
+disasm:	main.elf
+	avr-objdump -d main.elf
 
 cpp:
 	$(COMPILE) -E main.c

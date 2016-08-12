@@ -23,8 +23,6 @@ void updateC64KeyState(uint8_t amigaKey, bool up) {
 }
 
 int main(void) {
-	MCUCR |= _BV(JTD);
-	MCUCR |= _BV(JTD);
 	uart_init();
 	FILE uart_output = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
 	stdout = &uart_output;
