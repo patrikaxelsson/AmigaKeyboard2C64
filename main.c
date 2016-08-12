@@ -2,53 +2,47 @@
 #include <stdio.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
+#include <stdbool.h>
 
-#include "amiga_keyboard.h"
+#include "amiga_keyb_if.h"
+#include "c64_keyb_sim.h"
+#include "amiga_keyb_codes.h"
+#include "c64_keyb_codes.h"
 
-#define BAUD 9600
-#include <util/setbaud.h>
+#include "uart.h"
 
-void uart_init(void) {
-	UBRR0H = UBRRH_VALUE;
-	UBRR0L = UBRRL_VALUE;
+void updateC64KeyState(uint8_t amigaKey, bool up) {
+	switch(amigaKey) {
+		case AmigaKey_A:         c64_keyb_sim_setKey(C64Key_A,         up); break;
+		case AmigaKey_B:         c64_keyb_sim_setKey(C64Key_B,         up); break;
+		case AmigaKey_P:         c64_keyb_sim_setKey(C64Key_P,         up); break;
 
-#if USE_2X
-	UCSR0A |= _BV(U2X0);
-#else
-	UCSR0A &= ~(_BV(U2X0));
-#endif
-
-	UCSR0C = _BV(UCSZ01) | _BV(UCSZ00); /* 8-bit data */
-	UCSR0B = _BV(RXEN0) | _BV(TXEN0);   /* Enable RX and TX */
+		case AmigaKey_Space:     c64_keyb_sim_setKey(C64Key_Space,     up); break;
+		case AmigaKey_Return:    c64_keyb_sim_setKey(C64Key_Return,    up); break;
+    }
 }
-
-int uart_putchar(char c, FILE *stream) {
-	if (c == '\n') {
-		uart_putchar('\r', stream);
-	}
-	loop_until_bit_is_set(UCSR0A, UDRE0);
-	UDR0 = c;
-	return 0;
-}
-
-FILE uart_output = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
 
 int main(void) {
+	MCUCR |= _BV(JTD);
+	MCUCR |= _BV(JTD);
 	uart_init();
+	FILE uart_output = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
 	stdout = &uart_output;
 
-	amiga_keyboard_init();
+	amiga_keyb_if_init();
+	amiga_keyb_if_registerChangeCallback(&updateC64KeyState);
 
 	puts("starting!!!");
 
-	uint8_t prevKey = amiga_keyboard_getkey();
+	c64_keyb_sim_init();
+
+	uint8_t prevAmigaKey = amiga_keyb_if_getKey();
 	for(;;) {
-		uint8_t key = amiga_keyboard_getkey();
-
-		if (key != prevKey)
-			printf("%02x\n", key);
-
-		prevKey = key;
+		const uint8_t amigaKey = amiga_keyb_if_getKey();
+		if (amigaKey != prevAmigaKey) {
+			printf("%02x\n", amigaKey);
+		}
+		prevAmigaKey = amigaKey;
 	}
 
     return 0;
