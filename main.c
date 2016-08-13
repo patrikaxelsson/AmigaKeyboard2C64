@@ -88,18 +88,18 @@ void updateC64KeyState(uint8_t amigaKey, bool up) {
 		
 		// Special
 		case AmigaKey_F2:        c64_keyb_sim_setKey(C64Key_RShift,    up);
-		                     c64_keyb_sim_setKey(C64Key_F1,        up); break;
+		                         c64_keyb_sim_setKey(C64Key_F1,        up); break;
 		case AmigaKey_F4:        c64_keyb_sim_setKey(C64Key_RShift,    up);
-		                     c64_keyb_sim_setKey(C64Key_F3,        up); break;
+		                         c64_keyb_sim_setKey(C64Key_F3,        up); break;
 		case AmigaKey_F6:        c64_keyb_sim_setKey(C64Key_RShift,    up);
-		                     c64_keyb_sim_setKey(C64Key_F5,        up); break;
+		                         c64_keyb_sim_setKey(C64Key_F5,        up); break;
 		case AmigaKey_F8:        c64_keyb_sim_setKey(C64Key_RShift,    up);
-		                     c64_keyb_sim_setKey(C64Key_F7,        up); break;
+		                         c64_keyb_sim_setKey(C64Key_F7,        up); break;
 		
 		case AmigaKey_CursLeft:  c64_keyb_sim_setKey(C64Key_RShift,    up);
-		                     c64_keyb_sim_setKey(C64Key_CursRight, up); break;
+		                         c64_keyb_sim_setKey(C64Key_CursRight, up); break;
 		case AmigaKey_CursUp:    c64_keyb_sim_setKey(C64Key_RShift,    up);
-		                     c64_keyb_sim_setKey(C64Key_CursDown,  up); break;
+		                         c64_keyb_sim_setKey(C64Key_CursDown,  up); break;
 		
 		// Num Pad
 		case AmigaKey_Num_0:     c64_keyb_sim_setKey(C64Key_0,         up); break;
@@ -120,9 +120,9 @@ void updateC64KeyState(uint8_t amigaKey, bool up) {
 		case AmigaKey_Num_Period:          c64_keyb_sim_setKey(C64Key_Period,   up); break;
 		case AmigaKey_Num_Asterisk:        c64_keyb_sim_setKey(C64Key_Asterisk, up); break;
 		case AmigaKey_Num_LeftParenthese:  c64_keyb_sim_setKey(C64Key_RShift,   up);
-		                               c64_keyb_sim_setKey(C64Key_8,        up); break;
+		                                   c64_keyb_sim_setKey(C64Key_8,        up); break;
 		case AmigaKey_Num_RightParenthese: c64_keyb_sim_setKey(C64Key_RShift,   up);
-                               c64_keyb_sim_setKey(C64Key_9,        up); break;
+		                                   c64_keyb_sim_setKey(C64Key_9,        up); break;
     }
 }
 
