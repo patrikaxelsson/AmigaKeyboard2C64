@@ -67,7 +67,9 @@ enum C64Key {
 	C64Key_F1           = 0x04,
 	C64Key_F3           = 0x05,
 	C64Key_F5           = 0x06,
-	C64Key_F7           = 0x03
+	C64Key_F7           = 0x03,
+	// Special key outside regular 8x8 matrix
+	C64Key_Restore      = 0xf0,
 };
 
 #endif

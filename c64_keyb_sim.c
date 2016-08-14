@@ -2,12 +2,17 @@
 #include <avr/interrupt.h>
 #include <stdbool.h>
 
+#include "c64_keyb_codes.h"
+
 #define KEYB_COLS_IN PINA
 #define KEYB_COLS_OUT PINA
 #define KEYB_COLS_DDR DDRA
 #define KEYB_ROWS_IN PINC
 #define KEYB_ROWS_OUT PORTC
 #define KEYB_ROWS_DDR DDRC
+#define KEYB_RESTORE_OUT PORTD
+#define KEYB_RESTORE_DDR DDRD
+#define KEYB_RESTORE_MASK _BV(PIND4)
 
 // This array contains the state of the keys for all combinations of columns.
 // There are only 8 different rows of column state, but as the C64 can pull
@@ -53,31 +58,48 @@ ISR (PCINT0_vect, ISR_NAKED) {
 }
 
 void c64_keyb_sim_init() {
-	KEYB_COLS_DDR = 0x00; //Input
+	KEYB_COLS_DDR = 0x00; // Input
 
-	KEYB_ROWS_DDR = 0x00; //Input
-	KEYB_ROWS_OUT = 0x00; //Output zero whenever set to output
+	KEYB_ROWS_DDR = 0x00; // Input
+	KEYB_ROWS_OUT = 0x00; // Output zero whenever set to output
+
+	KEYB_RESTORE_DDR &= ~KEYB_RESTORE_MASK; // Input
+	KEYB_RESTORE_OUT &= ~KEYB_RESTORE_MASK; // Output zero whenever set to output
 
 	PCICR |= _BV(PCIE0);
 	PCMSK0 = 0xff; // Generate interrupt on all COLS
 	sei();
 }
 
-void c64_keyb_sim_setKey(uint8_t c64Key, bool up) {
-	const uint8_t colMask = 1 << (c64Key >> 4);
-	const uint8_t rowMask = 1 << (c64Key & 0x7);
+static void setRestore(bool up) {
+	if(up) {
+		KEYB_RESTORE_DDR &= ~KEYB_RESTORE_MASK;
+	}
+	else {
+		KEYB_RESTORE_DDR |= KEYB_RESTORE_MASK;
+	}
+}
 
-	uint8_t i = 0;
-	do {
-		if(i & colMask) {
-			// Observe that the index is inverted to match the inverted KEYB_COLS_IN input
-			const uint8_t colIndex = ~i;
-			if(up) {
-				rowState[colIndex] &= ~rowMask;
+void c64_keyb_sim_setKey(uint8_t c64Key, bool up) {
+	if(C64Key_Restore == c64Key) {
+		setRestore(up);
+	}
+	else {
+		const uint8_t colMask = 1 << (c64Key >> 4);
+		const uint8_t rowMask = 1 << (c64Key & 0x7);
+	
+		uint8_t i = 0;
+		do {
+			if(i & colMask) {
+				// Observe that the index is inverted to match the inverted KEYB_COLS_IN input
+				const uint8_t colIndex = ~i;
+				if(up) {
+					rowState[colIndex] &= ~rowMask;
+				}
+				else {
+					rowState[colIndex] |= rowMask;
+				}
 			}
-			else {
-				rowState[colIndex] |= rowMask;
-			}
-		}
-	} while(i++ < 255);
+		} while(i++ < 255);
+	}
 }

@@ -84,6 +84,7 @@ static const uint8_t amigaToC64Map[][2] = {
 
 	[AmigaKey_F9]                  = {C64Key_At,        0xff},
 	[AmigaKey_F10]                 = {C64Key_Colon,     0xff},
+	[AmigaKey_Help]                = {C64Key_Restore,   0xff},
 
 	// Special
 	[AmigaKey_F2]                  = {C64Key_RShift,    C64Key_F1},
@@ -93,9 +94,9 @@ static const uint8_t amigaToC64Map[][2] = {
 
 	[AmigaKey_CursLeft]            = {C64Key_RShift,    C64Key_CursRight},
 	[AmigaKey_CursUp]              = {C64Key_RShift,    C64Key_CursDown},
-	[AmigaKey_Num_0]               = {C64Key_0,         0xff},
 
 	// Num Pad
+	[AmigaKey_Num_0]               = {C64Key_0,         0xff},
 	[AmigaKey_Num_1]               = {C64Key_1,         0xff},
 	[AmigaKey_Num_2]               = {C64Key_2,         0xff},
 	[AmigaKey_Num_3]               = {C64Key_3,         0xff},
