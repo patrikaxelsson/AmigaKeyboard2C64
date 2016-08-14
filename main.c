@@ -11,119 +11,119 @@
 
 #include "uart.h"
 
+static const uint8_t amigaToC64Map[][2] = {
+	[AmigaKey_A]                   = {C64Key_A,         0xff},
+	[AmigaKey_B]                   = {C64Key_B,         0xff},
+	[AmigaKey_C]                   = {C64Key_C,         0xff},
+	[AmigaKey_D]                   = {C64Key_D,         0xff},
+	[AmigaKey_E]                   = {C64Key_E,         0xff},
+	[AmigaKey_F]                   = {C64Key_F,         0xff},
+	[AmigaKey_G]                   = {C64Key_G,         0xff},
+	[AmigaKey_H]                   = {C64Key_H,         0xff},
+	[AmigaKey_I]                   = {C64Key_I,         0xff},
+	[AmigaKey_J]                   = {C64Key_J,         0xff},
+	[AmigaKey_K]                   = {C64Key_K,         0xff},
+	[AmigaKey_L]                   = {C64Key_L,         0xff},
+	[AmigaKey_M]                   = {C64Key_M,         0xff},
+	[AmigaKey_N]                   = {C64Key_N,         0xff},
+	[AmigaKey_O]                   = {C64Key_O,         0xff},
+	[AmigaKey_P]                   = {C64Key_P,         0xff},
+	[AmigaKey_Q]                   = {C64Key_Q,         0xff},
+	[AmigaKey_R]                   = {C64Key_R,         0xff},
+	[AmigaKey_S]                   = {C64Key_S,         0xff},
+	[AmigaKey_T]                   = {C64Key_T,         0xff},
+	[AmigaKey_U]                   = {C64Key_U,         0xff},
+	[AmigaKey_V]                   = {C64Key_V,         0xff},
+	[AmigaKey_W]                   = {C64Key_W,         0xff},
+	[AmigaKey_X]                   = {C64Key_X,         0xff},
+	[AmigaKey_Y]                   = {C64Key_Y,         0xff},
+	[AmigaKey_Z]                   = {C64Key_Z,         0xff},
+
+	[AmigaKey_0]                   = {C64Key_0,         0xff},
+	[AmigaKey_1]                   = {C64Key_1,         0xff},
+	[AmigaKey_2]                   = {C64Key_2,         0xff},
+	[AmigaKey_3]                   = {C64Key_3,         0xff},
+	[AmigaKey_4]                   = {C64Key_4,         0xff},
+	[AmigaKey_5]                   = {C64Key_5,         0xff},
+	[AmigaKey_6]                   = {C64Key_6,         0xff},
+	[AmigaKey_7]                   = {C64Key_7,         0xff},
+	[AmigaKey_8]                   = {C64Key_8,         0xff},
+	[AmigaKey_9]                   = {C64Key_9,         0xff},
+
+	[AmigaKey_F1]                  = {C64Key_F1,        0xff},
+	[AmigaKey_F3]                  = {C64Key_F3,        0xff},
+	[AmigaKey_F5]                  = {C64Key_F5,        0xff},
+	[AmigaKey_F7]                  = {C64Key_F7,        0xff},
+
+	[AmigaKey_Minus]               = {C64Key_Minus,     0xff},
+	[AmigaKey_Num_Plus]            = {C64Key_Plus,      0xff},
+	[AmigaKey_Period]              = {C64Key_Period,    0xff},
+	[AmigaKey_Comma]               = {C64Key_Comma,     0xff},
+	[AmigaKey_SemiColon]           = {C64Key_SemiColon, 0xff},
+	[AmigaKey_Slash]               = {C64Key_Slash,     0xff},
+	[AmigaKey_Equals]              = {C64Key_Equals,    0xff},
+	[AmigaKey_Tilde]               = {C64Key_LeftArrow, 0xff},
+
+	[AmigaKey_BackSpace]           = {C64Key_Delete,    0xff},
+	[AmigaKey_CursDown]            = {C64Key_CursDown,  0xff},
+	[AmigaKey_CursRight]           = {C64Key_CursRight, 0xff},
+	[AmigaKey_Delete]              = {C64Key_ClrHome,   0xff},
+
+	[AmigaKey_LShift]              = {C64Key_LShift,    0xff},
+	[AmigaKey_RShift]              = {C64Key_RShift,    0xff},
+	[AmigaKey_Escape]              = {C64Key_RunStop,   0xff},
+	[AmigaKey_LAmiga]              = {C64Key_Commodore, 0xff},
+	[AmigaKey_Ctrl]                = {C64Key_Control,   0xff},
+
+	[AmigaKey_Space]               = {C64Key_Space,     0xff},
+	[AmigaKey_Return]              = {C64Key_Return,    0xff},
+
+	[AmigaKey_LeftBracket]         = {C64Key_Asterisk,  0xff},
+	[AmigaKey_RightBracket]        = {C64Key_UpArrow,   0xff},
+	[AmigaKey_BackSlash]           = {C64Key_Pound,     0xff},
+
+	[AmigaKey_F9]                  = {C64Key_At,        0xff},
+	[AmigaKey_F10]                 = {C64Key_Colon,     0xff},
+
+	// Special
+	[AmigaKey_F2]                  = {C64Key_RShift,    C64Key_F1},
+	[AmigaKey_F4]                  = {C64Key_RShift,    C64Key_F3},
+	[AmigaKey_F6]                  = {C64Key_RShift,    C64Key_F5},
+	[AmigaKey_F8]                  = {C64Key_RShift,    C64Key_F7},
+
+	[AmigaKey_CursLeft]            = {C64Key_RShift,    C64Key_CursRight},
+	[AmigaKey_CursUp]              = {C64Key_RShift,    C64Key_CursDown},
+	[AmigaKey_Num_0]               = {C64Key_0,         0xff},
+
+	// Num Pad
+	[AmigaKey_Num_1]               = {C64Key_1,         0xff},
+	[AmigaKey_Num_2]               = {C64Key_2,         0xff},
+	[AmigaKey_Num_3]               = {C64Key_3,         0xff},
+	[AmigaKey_Num_4]               = {C64Key_4,         0xff},
+	[AmigaKey_Num_5]               = {C64Key_5,         0xff},
+	[AmigaKey_Num_6]               = {C64Key_6,         0xff},
+	[AmigaKey_Num_7]               = {C64Key_7,         0xff},
+	[AmigaKey_Num_8]               = {C64Key_8,         0xff},
+	[AmigaKey_Num_9]               = {C64Key_9,         0xff},
+
+	[AmigaKey_Num_Enter]           = {C64Key_Return,    0xff},
+	[AmigaKey_Num_Slash]           = {C64Key_Slash,     0xff},
+	[AmigaKey_Apostrophe]          = {C64Key_Plus,      0xff},
+	[AmigaKey_Num_Minus]           = {C64Key_Minus,     0xff},
+	[AmigaKey_Num_Period]          = {C64Key_Period,    0xff},
+	[AmigaKey_Num_Asterisk]        = {C64Key_Asterisk,  0xff},
+	[AmigaKey_Num_LeftParenthese]  = {C64Key_RShift,    C64Key_8},
+	[AmigaKey_Num_RightParenthese] = {C64Key_RShift,    C64Key_9},
+};
+
 void updateC64KeyState(uint8_t amigaKey, bool up) {
-	switch(amigaKey) {
-		case AmigaKey_A:         c64_keyb_sim_setKey(C64Key_A,         up); break;
-		case AmigaKey_B:         c64_keyb_sim_setKey(C64Key_B,         up); break;
-		case AmigaKey_C:         c64_keyb_sim_setKey(C64Key_C,         up); break;
-		case AmigaKey_D:         c64_keyb_sim_setKey(C64Key_D,         up); break;
-		case AmigaKey_E:         c64_keyb_sim_setKey(C64Key_E,         up); break;
-		case AmigaKey_F:         c64_keyb_sim_setKey(C64Key_F,         up); break;
-		case AmigaKey_G:         c64_keyb_sim_setKey(C64Key_G,         up); break;
-		case AmigaKey_H:         c64_keyb_sim_setKey(C64Key_H,         up); break;
-		case AmigaKey_I:         c64_keyb_sim_setKey(C64Key_I,         up); break;
-		case AmigaKey_J:         c64_keyb_sim_setKey(C64Key_J,         up); break;
-		case AmigaKey_K:         c64_keyb_sim_setKey(C64Key_K,         up); break;
-		case AmigaKey_L:         c64_keyb_sim_setKey(C64Key_L,         up); break;
-		case AmigaKey_M:         c64_keyb_sim_setKey(C64Key_M,         up); break;
-		case AmigaKey_N:         c64_keyb_sim_setKey(C64Key_N,         up); break;
-		case AmigaKey_O:         c64_keyb_sim_setKey(C64Key_O,         up); break;
-		case AmigaKey_P:         c64_keyb_sim_setKey(C64Key_P,         up); break;
-		case AmigaKey_Q:         c64_keyb_sim_setKey(C64Key_Q,         up); break;
-		case AmigaKey_R:         c64_keyb_sim_setKey(C64Key_R,         up); break;
-		case AmigaKey_S:         c64_keyb_sim_setKey(C64Key_S,         up); break;
-		case AmigaKey_T:         c64_keyb_sim_setKey(C64Key_T,         up); break;
-		case AmigaKey_U:         c64_keyb_sim_setKey(C64Key_U,         up); break;
-		case AmigaKey_V:         c64_keyb_sim_setKey(C64Key_V,         up); break;
-		case AmigaKey_W:         c64_keyb_sim_setKey(C64Key_W,         up); break;
-		case AmigaKey_X:         c64_keyb_sim_setKey(C64Key_X,         up); break;
-		case AmigaKey_Y:         c64_keyb_sim_setKey(C64Key_Y,         up); break;
-		case AmigaKey_Z:         c64_keyb_sim_setKey(C64Key_Z,         up); break;
-		
-		case AmigaKey_0:         c64_keyb_sim_setKey(C64Key_0,         up); break;
-		case AmigaKey_1:         c64_keyb_sim_setKey(C64Key_1,         up); break;
-		case AmigaKey_2:         c64_keyb_sim_setKey(C64Key_2,         up); break;
-		case AmigaKey_3:         c64_keyb_sim_setKey(C64Key_3,         up); break;
-		case AmigaKey_4:         c64_keyb_sim_setKey(C64Key_4,         up); break;
-		case AmigaKey_5:         c64_keyb_sim_setKey(C64Key_5,         up); break;
-		case AmigaKey_6:         c64_keyb_sim_setKey(C64Key_6,         up); break;
-		case AmigaKey_7:         c64_keyb_sim_setKey(C64Key_7,         up); break;
-		case AmigaKey_8:         c64_keyb_sim_setKey(C64Key_8,         up); break;
-		case AmigaKey_9:         c64_keyb_sim_setKey(C64Key_9,         up); break;
-		
-		case AmigaKey_F1:        c64_keyb_sim_setKey(C64Key_F1,        up); break;
-		case AmigaKey_F3:        c64_keyb_sim_setKey(C64Key_F3,        up); break;
-		case AmigaKey_F5:        c64_keyb_sim_setKey(C64Key_F5,        up); break;
-		case AmigaKey_F7:        c64_keyb_sim_setKey(C64Key_F7,        up); break;
-		
-		case AmigaKey_Minus:     c64_keyb_sim_setKey(C64Key_Minus,     up); break;
-		case AmigaKey_Num_Plus:  c64_keyb_sim_setKey(C64Key_Plus,      up); break;
-		case AmigaKey_Period:    c64_keyb_sim_setKey(C64Key_Period,    up); break;
-		case AmigaKey_Comma:     c64_keyb_sim_setKey(C64Key_Comma,     up); break;
-		case AmigaKey_SemiColon: c64_keyb_sim_setKey(C64Key_SemiColon, up); break;
-		case AmigaKey_Slash:     c64_keyb_sim_setKey(C64Key_Slash,     up); break;
-		case AmigaKey_Equals:    c64_keyb_sim_setKey(C64Key_Equals,    up); break;
-		case AmigaKey_Tilde:     c64_keyb_sim_setKey(C64Key_LeftArrow, up); break;
-		
-		case AmigaKey_BackSpace: c64_keyb_sim_setKey(C64Key_Delete,    up); break;
-		case AmigaKey_CursDown:  c64_keyb_sim_setKey(C64Key_CursDown,  up); break;
-		case AmigaKey_CursRight: c64_keyb_sim_setKey(C64Key_CursRight, up); break;
-		case AmigaKey_Delete:    c64_keyb_sim_setKey(C64Key_ClrHome,   up); break;
-		
-		case AmigaKey_LShift:    c64_keyb_sim_setKey(C64Key_LShift,    up); break;
-		case AmigaKey_RShift:    c64_keyb_sim_setKey(C64Key_RShift,    up); break;
-		case AmigaKey_Escape:    c64_keyb_sim_setKey(C64Key_RunStop,   up); break;
-		case AmigaKey_LAmiga:    c64_keyb_sim_setKey(C64Key_Commodore, up); break;
-		case AmigaKey_Ctrl:      c64_keyb_sim_setKey(C64Key_Control,   up); break;
-		
-		case AmigaKey_Space:     c64_keyb_sim_setKey(C64Key_Space,     up); break;
-		case AmigaKey_Return:    c64_keyb_sim_setKey(C64Key_Return,    up); break;
-		
-		case AmigaKey_LeftBracket:  c64_keyb_sim_setKey(C64Key_Asterisk, up); break;
-		case AmigaKey_RightBracket: c64_keyb_sim_setKey(C64Key_UpArrow,  up); break;
-		case AmigaKey_BackSlash:    c64_keyb_sim_setKey(C64Key_Pound,    up); break;
-		
-		case AmigaKey_F9:        c64_keyb_sim_setKey(C64Key_At,        up); break;
-		case AmigaKey_F10:       c64_keyb_sim_setKey(C64Key_Colon,     up); break;
-		
-		// Special
-		case AmigaKey_F2:        c64_keyb_sim_setKey(C64Key_RShift,    up);
-		                         c64_keyb_sim_setKey(C64Key_F1,        up); break;
-		case AmigaKey_F4:        c64_keyb_sim_setKey(C64Key_RShift,    up);
-		                         c64_keyb_sim_setKey(C64Key_F3,        up); break;
-		case AmigaKey_F6:        c64_keyb_sim_setKey(C64Key_RShift,    up);
-		                         c64_keyb_sim_setKey(C64Key_F5,        up); break;
-		case AmigaKey_F8:        c64_keyb_sim_setKey(C64Key_RShift,    up);
-		                         c64_keyb_sim_setKey(C64Key_F7,        up); break;
-		
-		case AmigaKey_CursLeft:  c64_keyb_sim_setKey(C64Key_RShift,    up);
-		                         c64_keyb_sim_setKey(C64Key_CursRight, up); break;
-		case AmigaKey_CursUp:    c64_keyb_sim_setKey(C64Key_RShift,    up);
-		                         c64_keyb_sim_setKey(C64Key_CursDown,  up); break;
-		
-		// Num Pad
-		case AmigaKey_Num_0:     c64_keyb_sim_setKey(C64Key_0,         up); break;
-		case AmigaKey_Num_1:     c64_keyb_sim_setKey(C64Key_1,         up); break;
-		case AmigaKey_Num_2:     c64_keyb_sim_setKey(C64Key_2,         up); break;
-		case AmigaKey_Num_3:     c64_keyb_sim_setKey(C64Key_3,         up); break;
-		case AmigaKey_Num_4:     c64_keyb_sim_setKey(C64Key_4,         up); break;
-		case AmigaKey_Num_5:     c64_keyb_sim_setKey(C64Key_5,         up); break;
-		case AmigaKey_Num_6:     c64_keyb_sim_setKey(C64Key_6,         up); break;
-		case AmigaKey_Num_7:     c64_keyb_sim_setKey(C64Key_7,         up); break;
-		case AmigaKey_Num_8:     c64_keyb_sim_setKey(C64Key_8,         up); break;
-		case AmigaKey_Num_9:     c64_keyb_sim_setKey(C64Key_9,         up); break;
-		
-		case AmigaKey_Num_Enter:           c64_keyb_sim_setKey(C64Key_Return,   up); break;
-		case AmigaKey_Num_Slash:           c64_keyb_sim_setKey(C64Key_Slash,    up); break;
-		case AmigaKey_Apostrophe:          c64_keyb_sim_setKey(C64Key_Plus,     up); break;
-		case AmigaKey_Num_Minus:           c64_keyb_sim_setKey(C64Key_Minus,    up); break;
-		case AmigaKey_Num_Period:          c64_keyb_sim_setKey(C64Key_Period,   up); break;
-		case AmigaKey_Num_Asterisk:        c64_keyb_sim_setKey(C64Key_Asterisk, up); break;
-		case AmigaKey_Num_LeftParenthese:  c64_keyb_sim_setKey(C64Key_RShift,   up);
-		                                   c64_keyb_sim_setKey(C64Key_8,        up); break;
-		case AmigaKey_Num_RightParenthese: c64_keyb_sim_setKey(C64Key_RShift,   up);
-		                                   c64_keyb_sim_setKey(C64Key_9,        up); break;
-    }
+	if(amigaKey < sizeof(amigaToC64Map) / 2) {
+		const uint8_t *c64Keys = amigaToC64Map[amigaKey];
+		c64_keyb_sim_setKey(c64Keys[0], up);
+		if(0xff != c64Keys[1]) {
+			c64_keyb_sim_setKey(c64Keys[1], up);
+		}
+	}
 }
 
 int main(void) {
