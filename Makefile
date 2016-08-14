@@ -15,12 +15,12 @@
 # FUSES ........ Parameters for avrdude to flash the fuses appropriately.
 
 DEVICE     = atmega324p
-#CLOCK      = 8000000
-CLOCK      = 16000000
+CLOCK      = 8000000
+#CLOCK      = 16000000
 PROGRAMMER = -c stk500v2 -P /dev/tty.usbserial-FTTBQ2KPB
 OBJECTS    = main.o amiga_keyb_if.o c64_keyb_sim.o uart.o
-#FUSES      = -U hfuse:w:0x99:m -U lfuse:w:0xc2:m
-FUSES      = -U hfuse:w:0xD9:m -U lfuse:w:0xc0:m
+FUSES      = -U hfuse:w:0xD9:m -U lfuse:w:0xc2:m
+#FUSES      = -U hfuse:w:0xD9:m -U lfuse:w:0xc0:m
 #FUSES      = -U lfuse:w:0x42:m -U hfuse:w:0xdf:m -U efuse:w:0x01:m
 # http://www.engbedded.com/fusecalc/
 # ATMega8 fuse bits (fuse bits for other devices are different!):
@@ -64,7 +64,7 @@ FUSES      = -U hfuse:w:0xD9:m -U lfuse:w:0xc0:m
 # Tune the lines below only if you know what you are doing:
 
 AVRDUDE = avrdude $(PROGRAMMER) -p $(DEVICE)
-COMPILE = avr-gcc -Wall -O3 -DF_CPU=$(CLOCK) -mmcu=$(DEVICE)
+COMPILE = avr-gcc -Wall -Os -DF_CPU=$(CLOCK) -mmcu=$(DEVICE)
 
 # symbolic targets:
 all:	main.hex
