@@ -37,7 +37,7 @@ ISR (PCINT0_vect, ISR_NAKED) {
 		"in   r30, %[COLS_IN]    \n" // Read rowState array index from cols input
 		"ldi  r31, hi8(rowState) \n" // rowState is aligned on even 256-Bytes, so only high byte is needed
 		"ld   r24, Z             \n"
-		"out  %[ROWS_DDR], r24   \n"
+		"out  %[ROWS_DDR], r24   \n" // Output on port is inverted when setting DDR as KEYB_ROWS_OUT is 0x00
 		
 		"pop  r31                \n"
 		"pop  r30                \n"
@@ -64,18 +64,20 @@ void c64_keyb_sim_init() {
 }
 
 void c64_keyb_sim_setKey(uint8_t c64Key, bool up) {
-	const uint8_t column = c64Key >> 4;
-	const uint8_t rowData = 1 << (c64Key & 0x7);
-	uint16_t i;
-	
-	for(i = 0; i < 256; i++) {
-		if(i & (1 << column)) {
+	const uint8_t colMask = 1 << (c64Key >> 4);
+	const uint8_t rowMask = 1 << (c64Key & 0x7);
+
+	uint8_t i = 0;
+	do {
+		if(i & colMask) {
+			// Observe that the index is inverted to match the inverted KEYB_COLS_IN input
+			const uint8_t colIndex = ~i;
 			if(up) {
-				rowState[(uint8_t)~i] &= ~rowData;
+				rowState[colIndex] &= ~rowMask;
 			}
 			else {
-				rowState[(uint8_t)~i] |= rowData;
+				rowState[colIndex] |= rowMask;
 			}
 		}
-	}
+	} while(i++ < 255);
 }
