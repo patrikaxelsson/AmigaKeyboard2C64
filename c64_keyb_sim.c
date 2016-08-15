@@ -80,6 +80,13 @@ static void setRestore(bool up) {
 	}
 }
 
+void c64_keyb_sim_resetState(void) {
+	uint8_t i = 0;
+	do {
+		rowState[i] = 0;
+	} while(i++ < 255);
+}
+
 void c64_keyb_sim_setKey(uint8_t c64Key, bool up) {
 	if(C64Key_Restore == c64Key) {
 		setRestore(up);

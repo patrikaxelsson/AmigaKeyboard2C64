@@ -11,6 +11,10 @@
 
 #include "uart.h"
 
+#define RESET_OUT PORTD
+#define RESET_DDR DDRD
+#define RESET_MASK _BV(PIND5)
+
 static const uint8_t amigaToC64Map[][2] = {
 	[AmigaKey_A]                   = {C64Key_A,         0xff},
 	[AmigaKey_B]                   = {C64Key_B,         0xff},
@@ -127,13 +131,27 @@ void updateC64KeyState(uint8_t amigaKey, bool up) {
 	}
 }
 
+void startReset(void) {
+	RESET_DDR |= RESET_MASK;
+	c64_keyb_sim_resetState();
+}
+
+void endReset(void) {
+	RESET_DDR &= ~RESET_MASK;
+}
+
 int main(void) {
+	RESET_DDR &= ~RESET_MASK; // Input
+	RESET_OUT &= ~RESET_MASK; // Output zero whenever set to output
+
 	uart_init();
 	FILE uart_output = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
 	stdout = &uart_output;
 
 	amiga_keyb_if_init();
 	amiga_keyb_if_registerChangeCallback(&updateC64KeyState);
+	amiga_keyb_if_registerResetStartCallback(&startReset);
+	amiga_keyb_if_registerResetEndCallback(&endReset);
 
 	puts("starting!!!");
 
