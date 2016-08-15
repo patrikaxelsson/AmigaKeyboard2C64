@@ -21,8 +21,8 @@ static enum State {
 	//State_Reset,
 } state = State_Data;
 
-static uint8_t bitPos = 6;
 ISR (PCINT3_vect) {
+	static uint8_t bitPos = 6;
 	static uint8_t tmpData = 0x00;
 
 	//PORTB = ~_BV(bitPos);
@@ -32,6 +32,7 @@ ISR (PCINT3_vect) {
 				tmpData |= ((bit_is_clear(KEYB_IN, KEYB_DAT) ? 1 : 0) << bitPos);
 				if(7 == bitPos) {
 					keyboardData = tmpData;
+
 					changeCallback(tmpData & 0x7f, tmpData & 0x80);
 					tmpData = 0x00;
 					state = State_Handshake;
