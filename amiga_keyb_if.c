@@ -67,7 +67,7 @@ ISR (PCINT3_vect) {
 			if(7 == bitPos) {
 				keyboardData = tmpData;
 
-				changeCallback(tmpData & 0x7f, tmpData & 0x80);
+				//changeCallback(tmpData & 0x7f, tmpData & 0x80);
 				tmpData = 0x00;
 				state = State_Handshake;
 			}

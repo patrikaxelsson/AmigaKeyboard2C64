@@ -149,7 +149,7 @@ int main(void) {
 	stdout = &uart_output;
 
 	amiga_keyb_if_init();
-	amiga_keyb_if_registerChangeCallback(&updateC64KeyState);
+	//amiga_keyb_if_registerChangeCallback(&updateC64KeyState);
 	amiga_keyb_if_registerResetStartCallback(&startReset);
 	amiga_keyb_if_registerResetEndCallback(&endReset);
 
@@ -161,6 +161,7 @@ int main(void) {
 	for(;;) {
 		const uint8_t amigaKey = amiga_keyb_if_getKey();
 		if (amigaKey != prevAmigaKey) {
+			updateC64KeyState(amigaKey & 0x7f, amigaKey & 0x80);
 			printf("%02x\n", amigaKey);
 		}
 		prevAmigaKey = amigaKey;
