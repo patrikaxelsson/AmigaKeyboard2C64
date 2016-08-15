@@ -49,7 +49,7 @@ static void dummyChangeCallback(uint8_t amigaKey, bool up) {
 }
 
 void amiga_keyb_if_init() {
-	changeCallback = dummyChangeCallback;
+	changeCallback = &dummyChangeCallback;
 
 	KEYB_DDR &= ~KEYB_MASK;
 	KEYB_OUT |= KEYB_MASK; //Pullup
