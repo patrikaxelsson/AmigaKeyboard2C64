@@ -9,11 +9,16 @@
 #include "amiga_keyb_codes.h"
 #include "c64_keyb_codes.h"
 
-#include "uart.h"
-
-#define RESET_OUT PORTD
-#define RESET_DDR DDRD
-#define RESET_MASK _BV(PIND5)
+#if defined (__AVR_ATmega324P__)
+	#include "uart.h"
+	#define RESET_OUT PORTD
+	#define RESET_DDR DDRD
+	#define RESET_MASK _BV(PIND5)
+#elif defined (__AVR_ATmega48__) || defined (__AVR_ATmega88__)
+	#define RESET_OUT PORTC
+	#define RESET_DDR DDRC
+	#define RESET_MASK _BV(PIND3)
+#endif
 
 static const uint8_t amigaToC64Map[][2] = {
 	[AmigaKey_A]                   = {C64Key_A,         0xff},
@@ -149,16 +154,16 @@ int main(void) {
 	RESET_DDR &= ~RESET_MASK; // Input
 	RESET_OUT &= ~RESET_MASK; // Output zero whenever set to output
 
-	uart_init();
-	FILE uart_output = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
-	stdout = &uart_output;
+	//uart_init();
+	//FILE uart_output = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
+	//stdout = &uart_output;
 
 	amiga_keyb_if_init();
 	//amiga_keyb_if_registerChangeCallback(&updateC64KeyState);
 	amiga_keyb_if_registerResetStartCallback(&startReset);
 	amiga_keyb_if_registerResetEndCallback(&endReset);
 
-	puts("starting!!!");
+	//puts("starting!!!");
 
 	c64_keyb_sim_init();
 

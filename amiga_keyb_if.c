@@ -4,16 +4,29 @@
 
 #include "amiga_keyb_codes.h"
 
-#define KEYB_IN PIND
-#define KEYB_OUT PORTD
-#define KEYB_DDR DDRD
-#define KEYB_CLK PIND2
-#define KEYB_DAT PIND3
-#define KEYB_MASK (_BV(KEYB_DAT) | _BV(KEYB_CLK))
-#define KEYB_CHANGE_VECT PCINT3_vect
-#define KEYB_CHANGE_PORTMASK _BV(PCIE3)
-#define KEYB_CHANGE_MASKREG PCMSK3
-#define KEYB_CHANGE_MASK _BV(PCINT26) 
+#if defined (__AVR_ATmega324P__)
+	#define KEYB_IN PIND
+	#define KEYB_OUT PORTD
+	#define KEYB_DDR DDRD
+	#define KEYB_CLK PIND2
+	#define KEYB_DAT PIND3
+	#define KEYB_MASK (_BV(KEYB_DAT) | _BV(KEYB_CLK))
+	#define KEYB_CHANGE_VECT PCINT3_vect
+	#define KEYB_CHANGE_PORTMASK _BV(PCIE3)
+	#define KEYB_CHANGE_MASKREG PCMSK3
+	#define KEYB_CHANGE_MASK _BV(PCINT26) 
+#elif defined (__AVR_ATmega48__) || defined (__AVR_ATmega88__)
+	#define KEYB_IN PINC
+	#define KEYB_OUT PORTC
+	#define KEYB_DDR DDRC
+	#define KEYB_CLK PINC0
+	#define KEYB_DAT PINC1
+	#define KEYB_MASK (_BV(KEYB_DAT) | _BV(KEYB_CLK))
+	#define KEYB_CHANGE_VECT PCINT3_vect
+	#define KEYB_CHANGE_PORTMASK _BV(PCIE1)
+	#define KEYB_CHANGE_MASKREG PCMSK1
+	#define KEYB_CHANGE_MASK _BV(PCINT8) 
+#endif
 
 static volatile uint8_t keyboardData = 0xff;
 static void (*changeCallback)(uint8_t, bool);

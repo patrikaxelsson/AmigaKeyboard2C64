@@ -4,19 +4,31 @@
 
 #include "c64_keyb_codes.h"
 
-#define KEYB_COLS_IN PINA
-#define KEYB_COLS_OUT PINA
-#define KEYB_COLS_DDR DDRA
-#define KEYB_ROWS_IN PINC
-#define KEYB_ROWS_OUT PORTC
-#define KEYB_ROWS_DDR DDRC
-#define KEYB_RESTORE_OUT PORTD
-#define KEYB_RESTORE_DDR DDRD
-#define KEYB_RESTORE_MASK _BV(PIND4)
-#define KEYB_CHANGE_VECT PCINT0_vect
-#define KEYB_CHANGE_PORTMASK _BV(PCIE0)
-#define KEYB_CHANGE_MASKREG PCMSK0
-
+#if defined (__AVR_ATmega324P__)
+	#define KEYB_COLS_IN PINA
+	#define KEYB_COLS_DDR DDRA
+	#define KEYB_ROWS_IN PINC
+	#define KEYB_ROWS_OUT PORTC
+	#define KEYB_ROWS_DDR DDRC
+	#define KEYB_RESTORE_OUT PORTD
+	#define KEYB_RESTORE_DDR DDRD
+	#define KEYB_RESTORE_MASK _BV(PIND4)
+	#define KEYB_CHANGE_VECT PCINT0_vect
+	#define KEYB_CHANGE_PORTMASK _BV(PCIE0)
+	#define KEYB_CHANGE_MASKREG PCMSK0
+#elif defined (__AVR_ATmega48__) || defined (__AVR_ATmega88__)
+	#define KEYB_COLS_IN PIND
+	#define KEYB_COLS_DDR DDRD
+	#define KEYB_ROWS_IN PINB
+	#define KEYB_ROWS_OUT PORTB
+	#define KEYB_ROWS_DDR DDRB
+	#define KEYB_RESTORE_OUT PORTC
+	#define KEYB_RESTORE_DDR DDRC
+	#define KEYB_RESTORE_MASK _BV(PIND2)
+	#define KEYB_CHANGE_VECT PCINT0_vect
+	#define KEYB_CHANGE_PORTMASK _BV(PCIE0)
+	#define KEYB_CHANGE_MASKREG PCMSK0
+#endif
 // This array contains the state of the keys for all combinations of columns.
 // There are only 8 different rows of column state, but as the C64 can pull
 // any combination of the 8 column pins low, there are actually 256
