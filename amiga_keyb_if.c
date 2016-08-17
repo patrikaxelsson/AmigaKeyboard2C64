@@ -1,8 +1,6 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdbool.h>
-#include <stdio.h>
-#include <util/delay.h>
 
 #include "amiga_keyb_codes.h"
 
