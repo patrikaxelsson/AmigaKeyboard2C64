@@ -128,8 +128,10 @@ void updateC64KeyState(uint8_t amigaKey, bool up) {
 	if(amigaKey < sizeof(amigaToC64Map) / 2) {
 		const uint8_t *c64Keys = amigaToC64Map[amigaKey];
 		c64_keyb_sim_setKey(c64Keys[0], up);
-		if(0xff != c64Keys[1]) {
-			c64_keyb_sim_setKey(c64Keys[1], up);
+		for(uint8_t i = 0; i < 2; i++) {
+			if(0xff != c64Keys[1]) {
+				c64_keyb_sim_setKey(c64Keys[1], up);
+			}
 		}
 	}
 }
