@@ -10,6 +10,10 @@
 #define KEYB_CLK PIND2
 #define KEYB_DAT PIND3
 #define KEYB_MASK (_BV(KEYB_DAT) | _BV(KEYB_CLK))
+#define KEYB_CHANGE_VECT PCINT3_vect
+#define KEYB_CHANGE_PORTMASK _BV(PCIE3)
+#define KEYB_CHANGE_MASKREG PCMSK3
+#define KEYB_CHANGE_MASK _BV(PCINT26) 
 
 static volatile uint8_t keyboardData = 0xff;
 static void (*changeCallback)(uint8_t, bool);
@@ -21,6 +25,11 @@ static enum State {
 	State_Handshake,
 	State_Reset,
 } state = State_Data;
+
+static void initChangeInterrupt(void) {
+	PCICR |= KEYB_CHANGE_PORTMASK;
+	KEYB_CHANGE_MASKREG |= KEYB_CHANGE_MASK;
+}
 
 // As macros to get overflow warning
 #define TIMER_MICROS_CYCLES(microSeconds, divisor) ((microSeconds * (uint64_t) F_CPU) / (divisor * 1000000LL))
@@ -65,7 +74,7 @@ static void initResetTimer(void) {
 	TIMSK2 |= _BV(OCIE2A);
 }
 
-ISR (PCINT3_vect) {
+ISR (KEYB_CHANGE_VECT) {
 	static uint8_t bitPos = 6;
 	static uint8_t tmpData = 0x00;
 
@@ -134,9 +143,7 @@ void amiga_keyb_if_init() {
 
 	initHandshakeEndTimer();
 	initResetTimer();
-
-	PCICR |= _BV(PCIE3);
-	PCMSK3 |= _BV(PCINT26);
+	initChangeInterrupt();
 
 	sei();
 }

@@ -13,6 +13,9 @@
 #define KEYB_RESTORE_OUT PORTD
 #define KEYB_RESTORE_DDR DDRD
 #define KEYB_RESTORE_MASK _BV(PIND4)
+#define KEYB_CHANGE_VECT PCINT0_vect
+#define KEYB_CHANGE_PORTMASK _BV(PCIE0)
+#define KEYB_CHANGE_MASKREG PCMSK0
 
 // This array contains the state of the keys for all combinations of columns.
 // There are only 8 different rows of column state, but as the C64 can pull
@@ -31,7 +34,7 @@ static uint8_t rowState[256] __attribute__((aligned(0x100))) = {0};
 // Must be in assembler to be quick enough to work at 8MHz. This one takes 23
 // cycles, while the commented out one above would take 34 cycles when compiled
 // by gcc (counted push and pop as 2 cycles and other instructions as 1 cycle).
-ISR (PCINT0_vect, ISR_NAKED) {
+ISR (KEYB_CHANGE_VECT, ISR_NAKED) {
 	asm (
 		"push r24                \n"
 		"in   r24, __SREG__      \n"
@@ -66,8 +69,8 @@ void c64_keyb_sim_init() {
 	KEYB_RESTORE_DDR &= ~KEYB_RESTORE_MASK; // Input
 	KEYB_RESTORE_OUT &= ~KEYB_RESTORE_MASK; // Output zero whenever set to output
 
-	PCICR |= _BV(PCIE0);
-	PCMSK0 = 0xff; // Generate interrupt on all COLS
+	PCICR |= KEYB_CHANGE_PORTMASK;
+	KEYB_CHANGE_MASKREG = 0xff; // Generate interrupt on all COLS
 	sei();
 }
 
