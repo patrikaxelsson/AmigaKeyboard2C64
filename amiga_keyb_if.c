@@ -30,9 +30,9 @@ static enum State {
 
 static inline void startHandshakeEndTimer(void) {
 	// Set prescaler to clk/8 - counts up once per microsecond at 8MHz
-	//TCCR0B = _BV(CS00);
+	TCCR0B = _BV(CS01);
 	// Set prescaler to clk/64
-	TCCR0B = _BV(CS01) | _BV(CS00);
+	//TCCR0B = _BV(CS01) | _BV(CS00);
 }
 static inline void stopHandshakeEndTimer(void) {
 	TCCR0B = 0x00;
@@ -41,7 +41,7 @@ static inline void stopHandshakeEndTimer(void) {
 static void initHandshakeEndTimer(void) {
 	TCCR0A = _BV(WGM01); // Enable output compare mode
 	stopHandshakeEndTimer();
-	OCR0A = TIMER8_MICROS_CYCLES(85, 64);
+	OCR0A = TIMER8_MICROS_CYCLES(85, 8);
 	TIMSK0 |= _BV(OCIE0A);
 }
 
