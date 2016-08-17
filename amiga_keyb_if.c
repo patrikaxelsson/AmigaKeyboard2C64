@@ -23,8 +23,8 @@ static enum State {
 } state = State_Data;
 
 // As macros to get overflow warning
-#define TIMER8_MICROS_CYCLES(microSeconds, divisor) ((microSeconds * (uint64_t) F_CPU) / (divisor * 1000000LL))
-#define TIMER16_MILLIS_CYCLES(milliSeconds, divisor) ((milliSeconds * (uint64_t) F_CPU) / (divisor * 1000L))
+#define TIMER_MICROS_CYCLES(microSeconds, divisor) ((microSeconds * (uint64_t) F_CPU) / (divisor * 1000000LL))
+#define TIMER_MILLIS_CYCLES(milliSeconds, divisor) ((milliSeconds * (uint64_t) F_CPU) / (divisor * 1000L))
 
 static inline void startHandshakeEndTimer(void) {
 	// Set prescaler to clk/8 - counts up once per microsecond at 8MHz
@@ -39,25 +39,30 @@ static inline void stopHandshakeEndTimer(void) {
 static void initHandshakeEndTimer(void) {
 	TCCR0A = _BV(WGM01); // Enable output compare mode
 	stopHandshakeEndTimer();
-	OCR0A = TIMER8_MICROS_CYCLES(85, 8);
+	OCR0A = TIMER_MICROS_CYCLES(85, 8);
 	TIMSK0 |= _BV(OCIE0A);
 }
 
 static inline void startResetTimer(void) {
 	// Set prescaler to clk/1024
-	TCCR1B = _BV(WGM12) | _BV(CS12) | _BV(CS10);
+	//TCCR1B = _BV(WGM12) | _BV(CS12) | _BV(CS10);
+	TCCR2B = _BV(CS22) | _BV(CS21) | _BV(CS20);
 }
 static inline void stopResetTimer(void) {
-	TCCR1B = 0x00;
-	TCNT1 = 0;
+	//TCCR1B = 0x00;
+	//TCNT1 = 0;
+	TCCR2B = 0x00;
+	TCNT2 = 0;
 }
 
 static void initResetTimer(void) {
-	TCCR1A = 0x00; // Enable output compare mode
+	//TCCR1A = 0x00; // Enable output compare mode
+	TCCR2A = _BV(WGM21); // Enable output compare mode
 	stopResetTimer();
-	// If KEYB_CLK is kept low more than 30ms, we assume the keyboard is in hard reset mode
-	OCR1A = TIMER16_MILLIS_CYCLES(30, 1024);
-	TIMSK1 |= _BV(OCIE1A);
+	// If KEYB_CLK is kept low more than 16ms, we assume the keyboard is in hard reset mode
+	OCR2A = TIMER_MILLIS_CYCLES(16, 1024);
+	//TIMSK1 |= _BV(OCIE1A);
+	TIMSK2 |= _BV(OCIE2A);
 }
 
 ISR (PCINT3_vect) {
@@ -103,9 +108,9 @@ ISR (TIMER0_COMPA_vect) {
 	state = State_Data;
 }
 
-ISR (TIMER1_COMPA_vect) {
+//ISR (TIMER1_COMPA_vect) {
+ISR (TIMER2_COMPA_vect) {
 	stopResetTimer();
-
 	state = State_Reset;
 	resetStartCallback();
 }

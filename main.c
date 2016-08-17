@@ -167,7 +167,7 @@ int main(void) {
 		const uint8_t amigaKey = amiga_keyb_if_getKey();
 		if (amigaKey != prevAmigaKey) {
 			updateC64KeyState(amigaKey & 0x7f, amigaKey & 0x80);
-			printf("%02x\n", amigaKey);
+			//printf("%02x\n", amigaKey);
 		}
 		prevAmigaKey = amigaKey;
 	}
