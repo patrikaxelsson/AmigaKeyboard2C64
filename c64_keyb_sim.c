@@ -24,10 +24,10 @@
 	#define KEYB_ROWS_DDR DDRB
 	#define KEYB_RESTORE_OUT PORTC
 	#define KEYB_RESTORE_DDR DDRC
-	#define KEYB_RESTORE_MASK _BV(PIND2)
-	#define KEYB_CHANGE_VECT PCINT0_vect
-	#define KEYB_CHANGE_PORTMASK _BV(PCIE0)
-	#define KEYB_CHANGE_MASKREG PCMSK0
+	#define KEYB_RESTORE_MASK _BV(PINC2)
+	#define KEYB_CHANGE_VECT PCINT2_vect
+	#define KEYB_CHANGE_PORTMASK _BV(PCIE2)
+	#define KEYB_CHANGE_MASKREG PCMSK2
 #endif
 // This array contains the state of the keys for all combinations of columns.
 // There are only 8 different rows of column state, but as the C64 can pull
