@@ -2,6 +2,7 @@
 #include <avr/interrupt.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <util/delay.h>
 
 #include "amiga_keyb_codes.h"
 
@@ -29,7 +30,9 @@ static enum State {
 
 static inline void startHandshakeEndTimer(void) {
 	// Set prescaler to clk/8 - counts up once per microsecond at 8MHz
-	TCCR0B = _BV(CS00);
+	//TCCR0B = _BV(CS00);
+	// Set prescaler to clk/64
+	TCCR0B = _BV(CS01) | _BV(CS00);
 }
 static inline void stopHandshakeEndTimer(void) {
 	TCCR0B = 0x00;
@@ -38,7 +41,7 @@ static inline void stopHandshakeEndTimer(void) {
 static void initHandshakeEndTimer(void) {
 	TCCR0A = _BV(WGM01); // Enable output compare mode
 	stopHandshakeEndTimer();
-	OCR0A = TIMER8_MICROS_CYCLES(85, 8);
+	OCR0A = TIMER8_MICROS_CYCLES(85, 64);
 	TIMSK0 |= _BV(OCIE0A);
 }
 
@@ -63,7 +66,6 @@ ISR (PCINT3_vect) {
 	static uint8_t bitPos = 6;
 	static uint8_t tmpData = 0x00;
 
-	PORTB = ~(1 << bitPos);
 	if(bit_is_clear(KEYB_IN, KEYB_CLK)) {
 		startResetTimer();
 
@@ -71,10 +73,14 @@ ISR (PCINT3_vect) {
 			tmpData |= ((bit_is_clear(KEYB_IN, KEYB_DAT) ? 1 : 0) << bitPos);
 			if(7 == bitPos) {
 				keyboardData = tmpData;
-
 				//changeCallback(tmpData & 0x7f, tmpData & 0x80);
 				tmpData = 0x00;
+
+				// Start handshake by sinking KEYB_DAT
+				KEYB_OUT &= ~_BV(KEYB_DAT); // Disable pull-up and set to zero/low if used for output
+				KEYB_DDR |= _BV(KEYB_DAT); // Set to output
 				state = State_Handshake;
+				startHandshakeEndTimer();
 			}
 			bitPos--;
 			bitPos &= 7; // Wrap -> 7
@@ -82,17 +88,9 @@ ISR (PCINT3_vect) {
 	}
 	else {
 		stopResetTimer();
-		
-		if(State_Handshake == state) {
-			// Start handshake by sinking KEYB_DAT
-			KEYB_OUT &= ~_BV(KEYB_DAT); // Disable pull-up and set to zero/low if used for output
-			KEYB_DDR |= _BV(KEYB_DAT); // Set to output
-
-			startHandshakeEndTimer();
-		}
-		else if(State_Reset == state) {
+	
+		if(State_Reset == state) {
 			resetEndCallback();
-			PORTB = 0xf0;
 			state = State_Data;
 		}
 	}
@@ -101,18 +99,15 @@ ISR (PCINT3_vect) {
 ISR (TIMER0_COMPA_vect) {
 	stopHandshakeEndTimer();
 
-	if (State_Handshake == state) {
-		// End handshake by releasing KEYB_DAT
-		KEYB_DDR &= ~_BV(KEYB_DAT); // Set to input
-		KEYB_OUT |= _BV(KEYB_DAT); // Enable pull-up
-		state = State_Data;
-	}
+	// End handshake by releasing KEYB_DAT
+	KEYB_DDR &= ~_BV(KEYB_DAT); // Set to input
+	KEYB_OUT |= _BV(KEYB_DAT); // Enable pull-up
+	state = State_Data;
 }
 
 ISR (TIMER1_COMPA_vect) {
 	stopResetTimer();
 
-	PORTB = 0xf0;
 	state = State_Reset;
 	resetStartCallback();
 }
@@ -139,9 +134,6 @@ void amiga_keyb_if_init() {
 
 	PCICR |= _BV(PCIE3);
 	PCMSK3 |= _BV(PCINT26);
-
-	PORTB = 0xff;
-	DDRB = 0xff;
 
 	sei();
 }
