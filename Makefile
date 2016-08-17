@@ -21,7 +21,6 @@ PROGRAMMER = -c stk500v2 -P /dev/tty.usbserial-FTTBQ2KPB
 OBJECTS    = main.o amiga_keyb_if.o c64_keyb_sim.o uart.o
 FUSES      = -U hfuse:w:0xD9:m -U lfuse:w:0xc2:m
 #FUSES      = -U hfuse:w:0xD9:m -U lfuse:w:0xc0:m
-#FUSES      = -U lfuse:w:0x42:m -U hfuse:w:0xdf:m -U efuse:w:0x01:m
 # http://www.engbedded.com/fusecalc/
 # ATMega8 fuse bits (fuse bits for other devices are different!):
 # Example for 8 MHz internal oscillator
