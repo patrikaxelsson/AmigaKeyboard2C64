@@ -9,8 +9,9 @@
 #include "amiga_keyb_codes.h"
 #include "c64_keyb_codes.h"
 
+//#include "uart.h"
+
 #if defined (__AVR_ATmega324P__)
-	#include "uart.h"
 	#define RESET_OUT PORTD
 	#define RESET_DDR DDRD
 	#define RESET_MASK _BV(PIND5)
@@ -158,14 +159,38 @@ int main(void) {
 	//FILE uart_output = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
 	//stdout = &uart_output;
 
+	c64_keyb_sim_init();
+
 	amiga_keyb_if_init();
 	//amiga_keyb_if_registerChangeCallback(&updateC64KeyState);
 	amiga_keyb_if_registerResetStartCallback(&startReset);
 	amiga_keyb_if_registerResetEndCallback(&endReset);
-
+	
 	//puts("starting!!!");
 
-	c64_keyb_sim_init();
+	//TCNT1 = 0;
+	//TCCR1B = _BV(CS11) | _BV(CS11);
+	//c64_keyb_sim_setKeyOld(0, false);
+	//TCCR1B = 0x00;
+	//printf("Old setKey down: %u\n", TCNT1);
+	//
+	//TCNT1 = 0;
+	//TCCR1B = _BV(CS11) | _BV(CS11);
+	//c64_keyb_sim_setKeyOld(0, true);
+	//TCCR1B = 0x00;
+	//printf("Old setKey up:   %u\n", TCNT1);
+
+	//TCNT1 = 0;
+	//TCCR1B = _BV(CS11) | _BV(CS11);
+	//c64_keyb_sim_setKey(0, false);
+	//TCCR1B = 0x00;
+	//printf("New setKey down: %u\n", TCNT1);
+	//
+	//TCNT1 = 0;
+	//TCCR1B = _BV(CS11) | _BV(CS11);
+	//c64_keyb_sim_setKey(0, true);
+	//TCCR1B = 0x00;
+	//printf("New setKey up:   %u\n", TCNT1);
 
 	uint8_t prevAmigaKey = amiga_keyb_if_getKey();
 	for(;;) {

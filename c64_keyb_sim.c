@@ -109,19 +109,54 @@ void c64_keyb_sim_setKey(uint8_t c64Key, bool up) {
 	else {
 		const uint8_t colMask = 1 << (c64Key >> 4);
 		const uint8_t rowMask = 1 << (c64Key & 0x7);
+		// Up is more complicated than down as it needs to clear all combinations
+		// where this column is present, but cannot clear any combinations where
+		// other keys on the same row are pressed. The up algorithm could be used
+		// for both down and up, but it is quite a bit slower, so used an as simple
+		// as possible for down as if any time would be more critical, it is pressing
+		// down.
+		// Benchmark of current solution vs old which didn't work correctly on up in
+		// microseconds:
+		// Old setKey down: 420
+		// Old setKey up:   436
+		// New setKey down: 372
+		// New setKey up:   919
+		if(up) {
+			rowState[(uint8_t) ~colMask] &= ~rowMask;
+			// Observe that the index is inverted to match the inverted KEYB_COLS_IN input
+			const uint8_t rowStateCol0 = rowState[(uint8_t) ~(1 << 0)];
+			const uint8_t rowStateCol1 = rowState[(uint8_t) ~(1 << 1)];
+			const uint8_t rowStateCol2 = rowState[(uint8_t) ~(1 << 2)];
+			const uint8_t rowStateCol3 = rowState[(uint8_t) ~(1 << 3)];
+			const uint8_t rowStateCol4 = rowState[(uint8_t) ~(1 << 4)];
+			const uint8_t rowStateCol5 = rowState[(uint8_t) ~(1 << 5)];
+			const uint8_t rowStateCol6 = rowState[(uint8_t) ~(1 << 6)];
+			const uint8_t rowStateCol7 = rowState[(uint8_t) ~(1 << 7)];
 	
-		uint8_t i = 0;
-		do {
-			if(i & colMask) {
-				// Observe that the index is inverted to match the inverted KEYB_COLS_IN input
-				const uint8_t colIndex = ~i;
-				if(up) {
-					rowState[colIndex] &= ~rowMask;
+			uint8_t i = 0;
+			do {
+				uint8_t currentRowState = 0x00;
+				if((1 << 0) & i) currentRowState |= rowStateCol0;
+				if((1 << 1) & i) currentRowState |= rowStateCol1;
+				if((1 << 2) & i) currentRowState |= rowStateCol2;
+				if((1 << 3) & i) currentRowState |= rowStateCol3;
+				if((1 << 4) & i) currentRowState |= rowStateCol4;
+				if((1 << 5) & i) currentRowState |= rowStateCol5;
+				if((1 << 6) & i) currentRowState |= rowStateCol6;
+				if((1 << 7) & i) currentRowState |= rowStateCol7;
+
+				rowState[(uint8_t) ~i] = currentRowState;
+			} while(i++ < 255);
+		}
+		// Down
+		else {
+			uint8_t i = 0;
+			do {
+				if(colMask & i) {
+					// Observe that the index is inverted to match the inverted KEYB_COLS_IN input
+					rowState[(uint8_t) ~i] |= rowMask;
 				}
-				else {
-					rowState[colIndex] |= rowMask;
-				}
-			}
-		} while(i++ < 255);
+			} while(i++ < 255);
+		}
 	}
 }
