@@ -23,6 +23,9 @@ static enum State {
 	State_Reset,
 } state = State_Data;
 
+// As macros to get overflow warning
+#define TIMER8_MICROS_CYCLES(microSeconds, divisor) ((microSeconds * (uint64_t) F_CPU) / (divisor * 1000000LL))
+#define TIMER16_MILLIS_CYCLES(milliSeconds, divisor) ((milliSeconds * (uint64_t) F_CPU) / (divisor * 1000L))
 
 static inline void startHandshakeEndTimer(void) {
 	// Set prescaler to clk/8 - counts up once per microsecond at 8MHz
@@ -35,7 +38,7 @@ static inline void stopHandshakeEndTimer(void) {
 static void initHandshakeEndTimer(void) {
 	TCCR0A = _BV(WGM01); // Enable output compare mode
 	stopHandshakeEndTimer();
-	OCR0A = 85; // Output compare match at 85 microseconds
+	OCR0A = TIMER8_MICROS_CYCLES(85, 8);
 	TIMSK0 |= _BV(OCIE0A);
 }
 
@@ -47,10 +50,12 @@ static inline void stopResetTimer(void) {
 	TCCR1B = 0x00;
 	TCNT1 = 0;
 }
+
 static void initResetTimer(void) {
 	TCCR1A = 0x00; // Enable output compare mode
 	stopResetTimer();
-	OCR1A = 10 * 8; // Output compare match at ~100ms
+	// If KEYB_CLK is kept low more than 30ms, we assume the keyboard is in hard reset mode
+	OCR1A = TIMER16_MILLIS_CYCLES(30, 1024);
 	TIMSK1 |= _BV(OCIE1A);
 }
 
@@ -87,6 +92,7 @@ ISR (PCINT3_vect) {
 		}
 		else if(State_Reset == state) {
 			resetEndCallback();
+			PORTB = 0xf0;
 			state = State_Data;
 		}
 	}
@@ -106,6 +112,7 @@ ISR (TIMER0_COMPA_vect) {
 ISR (TIMER1_COMPA_vect) {
 	stopResetTimer();
 
+	PORTB = 0xf0;
 	state = State_Reset;
 	resetStartCallback();
 }
