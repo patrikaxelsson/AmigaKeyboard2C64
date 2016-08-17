@@ -106,6 +106,9 @@ enum AmigaKey {
 	AmigaKey_SelftestFailed         = 0xfc,
 	AmigaKey_InitiatePowerUpStream  = 0xfd,
 	AmigaKey_TerminatePowerUpStream = 0xfe,
+
+	AmigaKey_International1         = 0x2b,
+	AmigaKey_International2         = 0x30,
 };
 
 #endif

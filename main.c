@@ -119,6 +119,9 @@ static const uint8_t amigaToC64Map[][2] = {
 	[AmigaKey_Num_Asterisk]        = {C64Key_Asterisk,  0xff},
 	[AmigaKey_Num_LeftParenthese]  = {C64Key_RShift,    C64Key_8},
 	[AmigaKey_Num_RightParenthese] = {C64Key_RShift,    C64Key_9},
+
+	[AmigaKey_International1]      = {0xff,             0xff},
+	[AmigaKey_International2]      = {0xff,             0xff},
 };
 
 void updateC64KeyState(uint8_t amigaKey, bool up) {
