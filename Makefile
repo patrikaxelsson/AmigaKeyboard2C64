@@ -19,6 +19,7 @@ DEVICE     = atmega88
 CLOCK      = 8000000
 #CLOCK      = 16000000
 PROGRAMMER = -c stk500v2 -P /dev/tty.usbserial-FTTBQ2KPB
+TINYPROGRAMMER = -c usbtiny 
 OBJECTS    = main.o amiga_keyb_if.o c64_keyb_sim.o uart.o
 FUSES      = -U hfuse:w:0xdf:m -U lfuse:w:0xc2:m
 #FUSES      = -U hfuse:w:0xd9:m -U lfuse:w:0xc2:m
@@ -65,6 +66,7 @@ FUSES      = -U hfuse:w:0xdf:m -U lfuse:w:0xc2:m
 # Tune the lines below only if you know what you are doing:
 
 AVRDUDE = avrdude $(PROGRAMMER) -p $(DEVICE)
+TINYAVRDUDE = avrdude $(TINYPROGRAMMER) -p $(DEVICE)
 COMPILE = avr-gcc -std=gnu99 -Wall -Os -DF_CPU=$(CLOCK) -mmcu=$(DEVICE)
 
 # symbolic targets:
@@ -86,8 +88,14 @@ all:	main.hex
 flash:	all
 	$(AVRDUDE) -U flash:w:main.hex:i
 
+tinyflash:	all
+	$(TINYAVRDUDE) -U flash:w:main.hex:i
+
 fuse:
 	$(AVRDUDE) $(FUSES)
+
+tinyfuse:
+	$(TINYAVRDUDE) $(FUSES)
 
 # Xcode uses the Makefile targets "", "clean" and "install"
 install: flash fuse
