@@ -67,7 +67,7 @@ FUSES      = -U hfuse:w:0xdf:m -U lfuse:w:0xc2:m
 
 AVRDUDE = avrdude $(PROGRAMMER) -p $(DEVICE)
 TINYAVRDUDE = avrdude $(TINYPROGRAMMER) -p $(DEVICE)
-COMPILE = avr-gcc -std=gnu99 -Wall -Os -DF_CPU=$(CLOCK) -mmcu=$(DEVICE)
+COMPILE = avr-gcc -std=gnu99 -ffixed-2 -Wall -Os -DF_CPU=$(CLOCK) -mmcu=$(DEVICE)
 
 # symbolic targets:
 all:	main.hex

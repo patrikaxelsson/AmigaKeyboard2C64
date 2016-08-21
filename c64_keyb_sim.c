@@ -37,7 +37,9 @@
 // where the column input is the index.
 
 // Aligned on even 256-Bytes to save an instruction in the ISR below
-static uint8_t rowState[256] __attribute__((aligned(0x100))) = {0};
+static uint8_t rowState[512] __attribute__((aligned(0x200))) = {0};
+//static uint8_t rowState[256] __attribute__((aligned(0x200))) = {0};
+register uint8_t rowHighByte asm ("r2");
 
 /*ISR (PCINT0_vect) {
 	KEYB_ROWS_DDR = rowState[KEYB_COLS_IN];
@@ -55,7 +57,8 @@ ISR (KEYB_CHANGE_VECT, ISR_NAKED) {
 		"push r31                \n"
 		
 		"in   r30, %[COLS_IN]    \n" // Read rowState array index from cols input
-		"ldi  r31, hi8(rowState) \n" // rowState is aligned on even 256-Bytes, so only high byte is needed
+		//"ldi  r31, hi8(rowState) \n" // rowState is aligned on even 256-Bytes, so only high byte is needed
+		"mov  r31, r2            \n" // rowState is aligned on even 256-Bytes, so only high byte is needed
 		"ld   r24, Z             \n"
 		"out  %[ROWS_DDR], r24   \n" // Output on port is inverted when setting DDR as KEYB_ROWS_OUT is 0x00
 		
@@ -72,7 +75,24 @@ ISR (KEYB_CHANGE_VECT, ISR_NAKED) {
 	);
 }
 
+uint8_t *getNewRowState(void) {
+	if(rowHighByte == ((uint16_t) rowState >> 8))
+		return rowState + 256;
+	else
+		return rowState;
+}
+
+uint8_t *getCurrentRowState(void) {
+	return (uint8_t *) (rowHighByte << 8);
+}
+
+
+void setRowState(uint8_t *newRowState) {
+	rowHighByte = (uint8_t) ((uint16_t) newRowState >> 8);
+}
+
 void c64_keyb_sim_init() {
+	setRowState(rowState);
 	KEYB_COLS_DDR = 0x00; // Input
 
 	KEYB_ROWS_DDR = 0x00; // Input
@@ -96,10 +116,14 @@ static void setRestore(bool up) {
 }
 
 void c64_keyb_sim_resetState(void) {
+	uint8_t *newRowState = getNewRowState();
+
 	uint8_t i = 0;
 	do {
-		rowState[i] = 0;
+		newRowState[i] = 0;
 	} while(i++ < 255);
+
+	setRowState(newRowState);
 }
 
 void c64_keyb_sim_setKey(uint8_t c64Key, bool up) {
@@ -121,17 +145,24 @@ void c64_keyb_sim_setKey(uint8_t c64Key, bool up) {
 		// Old setKey up:   436
 		// New setKey down: 372
 		// New setKey up:   919
+		uint8_t *newRowState = getNewRowState();
+		uint8_t *currentRowState = getCurrentRowState();
+		uint8_t i = 0;
+		do {
+			newRowState[i] = currentRowState[i];
+		} while(i++ < 255);
+	
 		if(up) {
-			rowState[(uint8_t) ~colMask] &= ~rowMask;
+			newRowState[(uint8_t) ~colMask] &= ~rowMask;
 			// Observe that the index is inverted to match the inverted KEYB_COLS_IN input
-			const uint8_t rowStateCol0 = rowState[(uint8_t) ~(1 << 0)];
-			const uint8_t rowStateCol1 = rowState[(uint8_t) ~(1 << 1)];
-			const uint8_t rowStateCol2 = rowState[(uint8_t) ~(1 << 2)];
-			const uint8_t rowStateCol3 = rowState[(uint8_t) ~(1 << 3)];
-			const uint8_t rowStateCol4 = rowState[(uint8_t) ~(1 << 4)];
-			const uint8_t rowStateCol5 = rowState[(uint8_t) ~(1 << 5)];
-			const uint8_t rowStateCol6 = rowState[(uint8_t) ~(1 << 6)];
-			const uint8_t rowStateCol7 = rowState[(uint8_t) ~(1 << 7)];
+			const uint8_t rowStateCol0 = newRowState[(uint8_t) ~(1 << 0)];
+			const uint8_t rowStateCol1 = newRowState[(uint8_t) ~(1 << 1)];
+			const uint8_t rowStateCol2 = newRowState[(uint8_t) ~(1 << 2)];
+			const uint8_t rowStateCol3 = newRowState[(uint8_t) ~(1 << 3)];
+			const uint8_t rowStateCol4 = newRowState[(uint8_t) ~(1 << 4)];
+			const uint8_t rowStateCol5 = newRowState[(uint8_t) ~(1 << 5)];
+			const uint8_t rowStateCol6 = newRowState[(uint8_t) ~(1 << 6)];
+			const uint8_t rowStateCol7 = newRowState[(uint8_t) ~(1 << 7)];
 	
 			uint8_t i = 0;
 			do {
@@ -145,7 +176,7 @@ void c64_keyb_sim_setKey(uint8_t c64Key, bool up) {
 				if((1 << 6) & i) currentRowState |= rowStateCol6;
 				if((1 << 7) & i) currentRowState |= rowStateCol7;
 
-				rowState[(uint8_t) ~i] = currentRowState;
+				newRowState[(uint8_t) ~i] = currentRowState;
 			} while(i++ < 255);
 		}
 		// Down
@@ -154,9 +185,10 @@ void c64_keyb_sim_setKey(uint8_t c64Key, bool up) {
 			do {
 				if(colMask & i) {
 					// Observe that the index is inverted to match the inverted KEYB_COLS_IN input
-					rowState[(uint8_t) ~i] |= rowMask;
+					newRowState[(uint8_t) ~i] |= rowMask;
 				}
 			} while(i++ < 255);
 		}
+		setRowState(newRowState);
 	}
 }
