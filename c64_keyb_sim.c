@@ -39,7 +39,7 @@
 // Aligned on even 256-Bytes to save an instruction in the ISR below
 static uint8_t rowState[512] __attribute__((aligned(0x200))) = {0};
 //static uint8_t rowState[256] __attribute__((aligned(0x200))) = {0};
-register uint8_t rowHighByte asm ("r2");
+register uint8_t rowHighByte asm ("r27");
 
 /*ISR (PCINT0_vect) {
 	KEYB_ROWS_DDR = rowState[KEYB_COLS_IN];
@@ -50,23 +50,14 @@ register uint8_t rowHighByte asm ("r2");
 // by gcc (counted push and pop as 2 cycles and other instructions as 1 cycle).
 ISR (KEYB_CHANGE_VECT, ISR_NAKED) {
 	asm (
-		"push r24                \n"
-		"in   r24, __SREG__      \n"
-		"push r24                \n"
-		"push r30                \n"
-		"push r31                \n"
+		"in   r2, __SREG__      \n"
 		
-		"in   r30, %[COLS_IN]    \n" // Read rowState array index from cols input
+		"in   r26, %[COLS_IN]    \n" // Read rowState array index from cols input
 		//"ldi  r31, hi8(rowState) \n" // rowState is aligned on even 256-Bytes, so only high byte is needed
-		"mov  r31, r2            \n" // rowState is aligned on even 256-Bytes, so only high byte is needed
-		"ld   r24, Z             \n"
-		"out  %[ROWS_DDR], r24   \n" // Output on port is inverted when setting DDR as KEYB_ROWS_OUT is 0x00
+		"ld   r3, X             \n"
+		"out  %[ROWS_DDR], r3   \n" // Output on port is inverted when setting DDR as KEYB_ROWS_OUT is 0x00
 		
-		"pop  r31                \n"
-		"pop  r30                \n"
-		"pop  r24                \n"
-		"out  __SREG__, r24      \n"
-		"pop r24                 \n"
+		"out  __SREG__, r2       \n"
 		"reti                    \n"
 		:
 		:
