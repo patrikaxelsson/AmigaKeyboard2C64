@@ -36,6 +36,8 @@
 // quickly, the best way was to use a table containing all combinations,
 // where the column input is the index.
 
+// rowState should be called columnState
+
 // Aligned on even 256-Bytes to save an instruction in the ISR below
 static uint8_t rowState[512] __attribute__((aligned(0x200))) = {0};
 //static uint8_t rowState[256] __attribute__((aligned(0x200))) = {0};
