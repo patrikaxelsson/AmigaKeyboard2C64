@@ -52,15 +52,11 @@ register uint8_t rowHighByte asm ("r27");
 // by gcc (counted push and pop as 2 cycles and other instructions as 1 cycle).
 ISR (KEYB_CHANGE_VECT, ISR_NAKED) {
 	asm (
-		"in   r2, __SREG__      \n"
+		"in   XL, %[COLS_IN]    \n" // Read rowState array index from cols input
+		"ld   r2, X             \n" // rowState always is in X
+		"out  %[ROWS_DDR], r2   \n" // Output on port is inverted when setting DDR as KEYB_ROWS_OUT is 0x00
 		
-		"in   r26, %[COLS_IN]    \n" // Read rowState array index from cols input
-		//"ldi  r31, hi8(rowState) \n" // rowState is aligned on even 256-Bytes, so only high byte is needed
-		"ld   r3, X             \n"
-		"out  %[ROWS_DDR], r3   \n" // Output on port is inverted when setting DDR as KEYB_ROWS_OUT is 0x00
-		
-		"out  __SREG__, r2       \n"
-		"reti                    \n"
+		"reti                   \n"
 		:
 		:
 			[COLS_IN]  "I" (_SFR_IO_ADDR(KEYB_COLS_IN)),
