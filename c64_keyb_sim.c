@@ -30,21 +30,18 @@
 	#define KEYB_CHANGE_MASKREG PCMSK2
 #endif
 // This array contains the state of the keys for all combinations of columns.
-// There are only 8 different rows of column state, but as the C64 can pull
+// There are only 8 different column states, but as the C64 can pull
 // any combination of the 8 column pins low, there are actually 256
-// combinations of row state. As the ISR code must set the row output very
+// combinations of column state. As the ISR code must set the row output very
 // quickly, the best way was to use a table containing all combinations,
 // where the column input is the index.
 
-// rowState should be called columnState
-
 // Aligned on even 256-Bytes to save an instruction in the ISR below
-static uint8_t rowState[512] __attribute__((aligned(0x200))) = {0};
-//static uint8_t rowState[256] __attribute__((aligned(0x200))) = {0};
-register uint8_t rowHighByte asm ("r27");
+static uint8_t colStates[512] __attribute__((aligned(0x100))) = {0};
+register uint8_t currentColStatesHighByte asm ("r27");
 
 /*ISR (PCINT0_vect) {
-	KEYB_ROWS_DDR = rowState[KEYB_COLS_IN];
+	KEYB_ROWS_DDR = colStates[KEYB_COLS_IN];
 }*/
 
 // Must be in assembler to be quick enough to work at 8MHz. This one takes 23
@@ -52,8 +49,8 @@ register uint8_t rowHighByte asm ("r27");
 // by gcc (counted push and pop as 2 cycles and other instructions as 1 cycle).
 ISR (KEYB_CHANGE_VECT, ISR_NAKED) {
 	asm (
-		"in   XL, %[COLS_IN]    \n" // Read rowState array index from cols input
-		"ld   r2, X             \n" // rowState always is in X
+		"in   XL, %[COLS_IN]    \n" // Read colStates array index from cols input
+		"ld   r2, X             \n" // The current colStates array is always in upper byte of register pair X
 		"out  %[ROWS_DDR], r2   \n" // Output on port is inverted when setting DDR as KEYB_ROWS_OUT is 0x00
 		
 		"reti                   \n"
@@ -64,24 +61,23 @@ ISR (KEYB_CHANGE_VECT, ISR_NAKED) {
 	);
 }
 
-uint8_t *getNewRowState(void) {
-	if(rowHighByte == ((uint16_t) rowState >> 8))
-		return rowState + 256;
+uint8_t *getCurrentColStates(void) {
+	return (uint8_t *) (currentColStatesHighByte << 8);
+}
+
+void setCurrentColStates(uint8_t *colStates) {
+	currentColStatesHighByte = (uint16_t) nextColStates >> 8;
+}
+
+uint8_t *getNextColStates(void) {
+	if(getCurrentColStates() == colStates)
+		return colStates + 256;
 	else
-		return rowState;
-}
-
-uint8_t *getCurrentRowState(void) {
-	return (uint8_t *) (rowHighByte << 8);
-}
-
-
-void setRowState(uint8_t *newRowState) {
-	rowHighByte = (uint8_t) ((uint16_t) newRowState >> 8);
+		return colStates;
 }
 
 void c64_keyb_sim_init() {
-	setRowState(rowState);
+	setCurrentColStates(colStates);
 	KEYB_COLS_DDR = 0x00; // Input
 
 	KEYB_ROWS_DDR = 0x00; // Input
@@ -105,14 +101,14 @@ static void setRestore(bool up) {
 }
 
 void c64_keyb_sim_resetState(void) {
-	uint8_t *newRowState = getNewRowState();
+	uint8_t *nextColStates = getNextColStates();
 
 	uint8_t i = 0;
 	do {
-		newRowState[i] = 0;
+		nextColStates[i] = 0;
 	} while(i++ < 255);
 
-	setRowState(newRowState);
+	setCurrentColStates(nextColStates);
 }
 
 void c64_keyb_sim_setKey(uint8_t c64Key, bool up) {
@@ -134,38 +130,38 @@ void c64_keyb_sim_setKey(uint8_t c64Key, bool up) {
 		// Old setKey up:   436
 		// New setKey down: 372
 		// New setKey up:   919
-		uint8_t *newRowState = getNewRowState();
-		uint8_t *currentRowState = getCurrentRowState();
+		uint8_t *nextColStates = getNextColStates();
+		uint8_t *currentColStates = getCurrentColStates();
 		uint8_t i = 0;
 		do {
-			newRowState[i] = currentRowState[i];
+			nextColStates[i] = currentColStates[i];
 		} while(i++ < 255);
 	
 		if(up) {
-			newRowState[(uint8_t) ~colMask] &= ~rowMask;
+			nextColStates[(uint8_t) ~colMask] &= ~rowMask;
 			// Observe that the index is inverted to match the inverted KEYB_COLS_IN input
-			const uint8_t rowStateCol0 = newRowState[(uint8_t) ~(1 << 0)];
-			const uint8_t rowStateCol1 = newRowState[(uint8_t) ~(1 << 1)];
-			const uint8_t rowStateCol2 = newRowState[(uint8_t) ~(1 << 2)];
-			const uint8_t rowStateCol3 = newRowState[(uint8_t) ~(1 << 3)];
-			const uint8_t rowStateCol4 = newRowState[(uint8_t) ~(1 << 4)];
-			const uint8_t rowStateCol5 = newRowState[(uint8_t) ~(1 << 5)];
-			const uint8_t rowStateCol6 = newRowState[(uint8_t) ~(1 << 6)];
-			const uint8_t rowStateCol7 = newRowState[(uint8_t) ~(1 << 7)];
+			const uint8_t colState0 = nextColStates[(uint8_t) ~(1 << 0)];
+			const uint8_t colState1 = nextColStates[(uint8_t) ~(1 << 1)];
+			const uint8_t colState2 = nextColStates[(uint8_t) ~(1 << 2)];
+			const uint8_t colState3 = nextColStates[(uint8_t) ~(1 << 3)];
+			const uint8_t colState4 = nextColStates[(uint8_t) ~(1 << 4)];
+			const uint8_t colState5 = nextColStates[(uint8_t) ~(1 << 5)];
+			const uint8_t colState6 = nextColStates[(uint8_t) ~(1 << 6)];
+			const uint8_t colState7 = nextColStates[(uint8_t) ~(1 << 7)];
 	
 			uint8_t i = 0;
 			do {
-				uint8_t currentRowState = 0x00;
-				if((1 << 0) & i) currentRowState |= rowStateCol0;
-				if((1 << 1) & i) currentRowState |= rowStateCol1;
-				if((1 << 2) & i) currentRowState |= rowStateCol2;
-				if((1 << 3) & i) currentRowState |= rowStateCol3;
-				if((1 << 4) & i) currentRowState |= rowStateCol4;
-				if((1 << 5) & i) currentRowState |= rowStateCol5;
-				if((1 << 6) & i) currentRowState |= rowStateCol6;
-				if((1 << 7) & i) currentRowState |= rowStateCol7;
+				uint8_t thisColState = 0x00;
+				if((1 << 0) & i) thisColState |= colState0;
+				if((1 << 1) & i) thisColState |= colState1;
+				if((1 << 2) & i) thisColState |= colState2;
+				if((1 << 3) & i) thisColState |= colState3;
+				if((1 << 4) & i) thisColState |= colState4;
+				if((1 << 5) & i) thisColState |= colState5;
+				if((1 << 6) & i) thisColState |= colState6;
+				if((1 << 7) & i) thisColState |= colState7;
 
-				newRowState[(uint8_t) ~i] = currentRowState;
+				nextColStates[(uint8_t) ~i] = thisColState;
 			} while(i++ < 255);
 		}
 		// Down
@@ -174,10 +170,10 @@ void c64_keyb_sim_setKey(uint8_t c64Key, bool up) {
 			do {
 				if(colMask & i) {
 					// Observe that the index is inverted to match the inverted KEYB_COLS_IN input
-					newRowState[(uint8_t) ~i] |= rowMask;
+					nextColStates[(uint8_t) ~i] |= rowMask;
 				}
 			} while(i++ < 255);
 		}
-		setRowState(newRowState);
+		setCurrentColStates(nextColStates);
 	}
 }
