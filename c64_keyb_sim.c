@@ -44,9 +44,15 @@ register uint8_t currentColStatesHighByte asm ("r27");
 	KEYB_ROWS_DDR = colStates[KEYB_COLS_IN];
 }*/
 
-// Must be in assembler to be quick enough to work at 8MHz. This one takes 23
-// cycles, while the commented out one above would take 34 cycles when compiled
-// by gcc (counted push and pop as 2 cycles and other instructions as 1 cycle).
+// Must be in assembler to be quick enough to work. This one takes 4 cycles
+// (without counting reti) by using reserved registers and no instructions
+// that affects SREG so we don't need to push and pop anything. The commented
+// out version above in C would take 34 cycles when compiled by gcc (without
+// counting reti).
+
+// Still approximately minimum 10MHz CPU frequency is needed to make picky
+// things like the 1541 Ultimate II menu work. The ROM keyboard code is much
+// more forgiving.
 ISR (KEYB_CHANGE_VECT, ISR_NAKED) {
 	asm (
 		"in   XL, %[COLS_IN]    \n" // Read colStates array index from cols input

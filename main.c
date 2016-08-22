@@ -152,6 +152,10 @@ void endReset(void) {
 }
 
 int main(void) {
+	// Assume we get ~13.5MHz by maxing out the calibration of the internal
+	// oscillator. Around 200 (which should be a bit above 10MHz is enough)
+	// to get the the very picky 1541 Ultimate II menu to work.
+	OSCCAL = 255; 
 	RESET_DDR &= ~RESET_MASK; // Input
 	RESET_OUT &= ~RESET_MASK; // Output zero whenever set to output
 
