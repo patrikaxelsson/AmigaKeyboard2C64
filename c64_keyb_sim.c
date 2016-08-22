@@ -66,7 +66,7 @@ uint8_t *getCurrentColStates(void) {
 }
 
 void setCurrentColStates(uint8_t *colStates) {
-	currentColStatesHighByte = (uint16_t) nextColStates >> 8;
+	currentColStatesHighByte = (uint16_t) colStates >> 8;
 }
 
 uint8_t *getNextColStates(void) {
