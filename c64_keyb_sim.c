@@ -73,6 +73,10 @@ static uint8_t *getCurrentColStates(void) {
 
 static void setCurrentColStates(uint8_t *colStates) {
 	currentColStatesHighByte = (uint16_t) colStates >> 8;
+	// Update current output in case we have a keypress during the time the columns
+	// selected doesn't change - like when code has set a column, and is looking
+	// for a specific row output in an infinite loop without changing the columns.
+	KEYB_ROWS_DDR = colStates[KEYB_COLS_IN];
 }
 
 static uint8_t *getNextColStates(void) {
