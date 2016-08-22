@@ -125,19 +125,19 @@ static const uint8_t amigaToC64Map[][2] = {
 	[AmigaKey_Num_Asterisk]        = {C64Key_Asterisk,  0xff},
 	[AmigaKey_Num_LeftParenthese]  = {C64Key_RShift,    C64Key_8},
 	[AmigaKey_Num_RightParenthese] = {C64Key_RShift,    C64Key_9},
-
-	[AmigaKey_International1]      = {0xff,             0xff},
-	[AmigaKey_International2]      = {0xff,             0xff},
 };
 
 void updateC64KeyState(uint8_t amigaKey, bool up) {
 	if(amigaKey < sizeof(amigaToC64Map) / 2) {
 		const uint8_t *c64Keys = amigaToC64Map[amigaKey];
-		c64_keyb_sim_setKey(c64Keys[0], up);
-		for(uint8_t i = 0; i < 2; i++) {
-			if(0xff != c64Keys[1]) {
+		// Not mapped keys have both entries set to zero. This rules out mapping
+		// an AmigaKey to two simultaneous presses of C64Key_Delete, which
+		// should be an ok limitation =). 
+		if(!(0 == c64Keys[0] && 0 == c64Keys[1])) {
+			if(0xff != c64Keys[0])
+				c64_keyb_sim_setKey(c64Keys[0], up);
+			if(0xff != c64Keys[1])
 				c64_keyb_sim_setKey(c64Keys[1], up);
-			}
 		}
 	}
 }
