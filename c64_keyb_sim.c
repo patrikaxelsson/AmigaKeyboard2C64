@@ -67,15 +67,15 @@ ISR (KEYB_CHANGE_VECT, ISR_NAKED) {
 	);
 }
 
-uint8_t *getCurrentColStates(void) {
+static uint8_t *getCurrentColStates(void) {
 	return (uint8_t *) (currentColStatesHighByte << 8);
 }
 
-void setCurrentColStates(uint8_t *colStates) {
+static void setCurrentColStates(uint8_t *colStates) {
 	currentColStatesHighByte = (uint16_t) colStates >> 8;
 }
 
-uint8_t *getNextColStates(void) {
+static uint8_t *getNextColStates(void) {
 	if(getCurrentColStates() == colStates)
 		return colStates + 256;
 	else
