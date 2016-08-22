@@ -16,7 +16,7 @@
 
 #DEVICE     = atmega324p
 DEVICE     = atmega88
-CLOCK      = 8000000
+CLOCK      =  13500000
 #CLOCK      = 16000000
 PROGRAMMER = -c stk500v2 -P /dev/tty.usbserial-FTTBQ2KPB
 TINYPROGRAMMER = -c usbtiny 
