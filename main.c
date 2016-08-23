@@ -174,27 +174,15 @@ int main(void) {
 
 	//TCNT1 = 0;
 	//TCCR1B = _BV(CS11) | _BV(CS11);
-	//c64_keyb_sim_setKeyOld(0, false);
-	//TCCR1B = 0x00;
-	//printf("Old setKey down: %u\n", TCNT1);
-	//
-	//TCNT1 = 0;
-	//TCCR1B = _BV(CS11) | _BV(CS11);
-	//c64_keyb_sim_setKeyOld(0, true);
-	//TCCR1B = 0x00;
-	//printf("Old setKey up:   %u\n", TCNT1);
-
-	//TCNT1 = 0;
-	//TCCR1B = _BV(CS11) | _BV(CS11);
 	//c64_keyb_sim_setKey(0, false);
 	//TCCR1B = 0x00;
-	//printf("New setKey down: %u\n", TCNT1);
+	//printf("setKey down: %u\n", TCNT1);
 	//
 	//TCNT1 = 0;
 	//TCCR1B = _BV(CS11) | _BV(CS11);
 	//c64_keyb_sim_setKey(0, true);
 	//TCCR1B = 0x00;
-	//printf("New setKey up:   %u\n", TCNT1);
+	//printf("setKey up:   %u\n", TCNT1);
 
 	uint8_t prevAmigaKey = amiga_keyb_if_getKey();
 	for(;;) {

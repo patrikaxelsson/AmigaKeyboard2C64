@@ -71,12 +71,12 @@ static uint8_t *getCurrentColStates(void) {
 	return (uint8_t *) (currentColStatesHighByte << 8);
 }
 
-static void setCurrentColStates(uint8_t *colStates) {
-	currentColStatesHighByte = (uint16_t) colStates >> 8;
+static void setCurrentColStates(uint8_t *nextColStates) {
+	currentColStatesHighByte = (uint16_t) nextColStates >> 8;
 	// Update current output in case we have a keypress during the time the columns
 	// selected doesn't change - like when code has set a column, and is looking
 	// for a specific row output in an infinite loop without changing the columns.
-	KEYB_ROWS_DDR = colStates[KEYB_COLS_IN];
+	KEYB_ROWS_DDR = nextColStates[KEYB_COLS_IN];
 }
 
 static uint8_t *getNextColStates(void) {
@@ -126,38 +126,31 @@ void c64_keyb_sim_setKey(uint8_t c64Key, bool up) {
 		setRestore(up);
 	}
 	else {
-		const uint8_t colMask = 1 << (c64Key >> 4);
-		const uint8_t rowMask = 1 << (c64Key & 0x7);
 		// Up is more complicated than down as it needs to clear all combinations
 		// where this column is present, but cannot clear any combinations where
 		// other keys on the same row are pressed. The up algorithm could be used
 		// for both down and up, but it is quite a bit slower, so used an as simple
 		// as possible for down as if any time would be more critical, it is pressing
 		// down.
-		// Benchmark of current solution vs old which didn't work correctly on up in
-		// microseconds:
-		// Old setKey down: 420
-		// Old setKey up:   436
-		// New setKey down: 372
-		// New setKey up:   919
-		uint8_t *nextColStates = getNextColStates();
+		//
+		// Benchmark at 8MHz:
+		// setKey down: 623
+		// setKey up:   936
+
+		const uint8_t col = c64Key >> 4;
+		const uint8_t colMask = 1 << (col);
+		const uint8_t rowMask = 1 << (c64Key & 0x7);
 		uint8_t *currentColStates = getCurrentColStates();
-		uint8_t i = 0;
-		do {
-			nextColStates[i] = currentColStates[i];
-		} while(i++ < 255);
-	
+		uint8_t *nextColStates = getNextColStates();
 		if(up) {
-			nextColStates[(uint8_t) ~colMask] &= ~rowMask;
-			// Observe that the index is inverted to match the inverted KEYB_COLS_IN input
-			const uint8_t colState0 = nextColStates[(uint8_t) ~(1 << 0)];
-			const uint8_t colState1 = nextColStates[(uint8_t) ~(1 << 1)];
-			const uint8_t colState2 = nextColStates[(uint8_t) ~(1 << 2)];
-			const uint8_t colState3 = nextColStates[(uint8_t) ~(1 << 3)];
-			const uint8_t colState4 = nextColStates[(uint8_t) ~(1 << 4)];
-			const uint8_t colState5 = nextColStates[(uint8_t) ~(1 << 5)];
-			const uint8_t colState6 = nextColStates[(uint8_t) ~(1 << 6)];
-			const uint8_t colState7 = nextColStates[(uint8_t) ~(1 << 7)];
+			const uint8_t colState0 = 0 != col ? currentColStates[(uint8_t) ~(1 << 0)] : currentColStates[(uint8_t) ~(1 << 0)] & ~rowMask; 
+			const uint8_t colState1 = 1 != col ? currentColStates[(uint8_t) ~(1 << 1)] : currentColStates[(uint8_t) ~(1 << 1)] & ~rowMask;
+			const uint8_t colState2 = 2 != col ? currentColStates[(uint8_t) ~(1 << 2)] : currentColStates[(uint8_t) ~(1 << 2)] & ~rowMask;
+			const uint8_t colState3 = 3 != col ? currentColStates[(uint8_t) ~(1 << 3)] : currentColStates[(uint8_t) ~(1 << 3)] & ~rowMask;
+			const uint8_t colState4 = 4 != col ? currentColStates[(uint8_t) ~(1 << 4)] : currentColStates[(uint8_t) ~(1 << 4)] & ~rowMask;
+			const uint8_t colState5 = 5 != col ? currentColStates[(uint8_t) ~(1 << 5)] : currentColStates[(uint8_t) ~(1 << 5)] & ~rowMask;
+			const uint8_t colState6 = 6 != col ? currentColStates[(uint8_t) ~(1 << 6)] : currentColStates[(uint8_t) ~(1 << 6)] & ~rowMask;
+			const uint8_t colState7 = 7 != col ? currentColStates[(uint8_t) ~(1 << 7)] : currentColStates[(uint8_t) ~(1 << 7)] & ~rowMask;
 	
 			uint8_t i = 0;
 			do {
@@ -178,10 +171,8 @@ void c64_keyb_sim_setKey(uint8_t c64Key, bool up) {
 		else {
 			uint8_t i = 0;
 			do {
-				if(colMask & i) {
-					// Observe that the index is inverted to match the inverted KEYB_COLS_IN input
-					nextColStates[(uint8_t) ~i] |= rowMask;
-				}
+				// Observe that the index is inverted to match the inverted KEYB_COLS_IN input
+				nextColStates[(uint8_t) ~i] = colMask & i ? currentColStates[(uint8_t) ~i] | rowMask : currentColStates[(uint8_t) ~i];
 			} while(i++ < 255);
 		}
 		setCurrentColStates(nextColStates);
