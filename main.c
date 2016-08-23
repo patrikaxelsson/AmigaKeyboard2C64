@@ -127,7 +127,7 @@ static const uint8_t amigaToC64Map[][2] = {
 	[AmigaKey_Num_RightParenthese] = {C64Key_RShift,    C64Key_9},
 };
 
-void updateC64KeyState(uint8_t amigaKey, bool up) {
+void updateC64KeyState(const uint8_t amigaKey, const bool up) {
 	if(amigaKey < sizeof(amigaToC64Map) / 2) {
 		const uint8_t *c64Keys = amigaToC64Map[amigaKey];
 		// Not mapped keys have both entries set to zero. This rules out mapping

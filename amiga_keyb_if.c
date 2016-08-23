@@ -29,7 +29,7 @@
 #endif
 
 static volatile uint8_t keyboardData = 0xff;
-static void (*changeCallback)(uint8_t, bool);
+static void (*changeCallback)(const uint8_t amigaKey, const bool up);
 static void (*resetStartCallback)(void);
 static void (*resetEndCallback)(void);
 
@@ -137,7 +137,7 @@ ISR (TIMER2_COMPA_vect) {
 	resetStartCallback();
 }
 
-static void dummyChangeCallback(uint8_t amigaKey, bool up) {
+static void dummyChangeCallback(const uint8_t amigaKey, const bool up) {
 }
 
 static void dummyResetStartCallback(void) {
@@ -165,7 +165,7 @@ uint8_t amiga_keyb_if_getKey() {
 	return keyboardData;
 }
 
-void amiga_keyb_if_registerChangeCallback(void (*newChangeCallback)(uint8_t, bool)) {
+void amiga_keyb_if_registerChangeCallback(void (*newChangeCallback)(const uint8_t amigaKey, const bool up)) {
 	changeCallback = newChangeCallback;
 }
 
