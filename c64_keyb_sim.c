@@ -16,7 +16,7 @@
 	#define KEYB_CHANGE_VECT PCINT0_vect
 	#define KEYB_CHANGE_PORTMASK _BV(PCIE0)
 	#define KEYB_CHANGE_MASKREG PCMSK0
-#elif defined (__AVR_ATmega48__) || defined (__AVR_ATmega88__)
+#elif defined (__AVR_ATmega88__)
 	#define KEYB_COLS_IN PIND
 	#define KEYB_COLS_DDR DDRD
 	#define KEYB_ROWS_IN PINB

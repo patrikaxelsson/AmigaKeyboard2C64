@@ -15,7 +15,7 @@
 	#define KEYB_CHANGE_PORTMASK _BV(PCIE3)
 	#define KEYB_CHANGE_MASKREG PCMSK3
 	#define KEYB_CHANGE_MASK _BV(PCINT26) 
-#elif defined (__AVR_ATmega48__) || defined (__AVR_ATmega88__)
+#elif defined (__AVR_ATmega88__)
 	#define KEYB_IN PINC
 	#define KEYB_OUT PORTC
 	#define KEYB_DDR DDRC

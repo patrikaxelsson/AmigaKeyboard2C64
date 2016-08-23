@@ -15,7 +15,7 @@
 	#define RESET_OUT PORTD
 	#define RESET_DDR DDRD
 	#define RESET_MASK _BV(PIND5)
-#elif defined (__AVR_ATmega48__) || defined (__AVR_ATmega88__)
+#elif defined (__AVR_ATmega88__)
 	#define RESET_OUT PORTC
 	#define RESET_DDR DDRC
 	#define RESET_MASK _BV(PIND3)
