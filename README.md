@@ -2,7 +2,7 @@ An adapter for connecting Amiga keyboards to the C64.
 
 Some features worth mentioning:
 - Can be used simultaneously with the regular C64 keyboard.
-- If connected to pin 3 of the C64 user port, it will reset the C64 when pressing Ctrl-Amiga-Amiga.
+- If connected to /RESET of the C64 user port, it will reset the C64 when pressing Ctrl-Amiga-Amiga.
 
 It works by simulating the keyboard matrix which the C64 reads directly using two of the 8-bit CIA ports. It is assumed that the C64 always uses the 8 COL pins as outputs and the 8 ROW pins as inputs when reading the matrix.
 
@@ -12,7 +12,7 @@ It is made to be simple and cheap to build, an Atmel ATMega88, a connector for t
 
 Hookup guide:
 
-| ATMega88      | C64 Keyb Port | C64 User Port | Amiga Keyboard |
+| ATMega88      | C64 keyb port | C64 user port | Amiga keyboard |
 | ------------- | ------------- | ------------- | -------------- |
 | GND           | GND           |               | GND            |
 | +5V           | +5V           |               | +5V            |
