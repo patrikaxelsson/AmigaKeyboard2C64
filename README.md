@@ -6,6 +6,6 @@ It is made to be simple and cheap to build, an Atmel ATMega88 and some wiring is
 
 The motivation for creating it was not for using the C64 with real Amiga keyboards, but to be able to control the C64 using synergy with an [avr-amiga-controller](https://github.com/patrikaxelsson/avr-amiga-controller/tree/master/firmware).
 
-Some features:
-- Can be used together, simultaneously with the regular C64 keyboard.
-- Will reset the C64 when pressing Ctrl-Amiga-Amiga if connected to pin 3 on the C64 user port.
+Some features worth mentioning:
+- Can be used simultaneously with the regular C64 keyboard.
+- If connected to pin 3 of the C64 user port, it will reset the C64 when pressing Ctrl-Amiga-Amiga.
