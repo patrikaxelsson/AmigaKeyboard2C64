@@ -11,6 +11,7 @@ Some features worth mentioning:
 - If connected to pin 3 of the C64 user port, it will reset the C64 when pressing Ctrl-Amiga-Amiga.
 
 Hookup guide:
+
 | ATMega88      | C64 Keyb Port | C64 User Port | Amiga Keyboard |
 | ------------- | ------------- | ------------- | -------------- |
 | GND           | GND           |               | GND            |
