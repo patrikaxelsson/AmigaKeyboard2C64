@@ -14,25 +14,25 @@ Hookup guide:
 
 | ATMega88      | C64 keyb port | C64 user port | Amiga keyboard |
 | ------------- | ------------- | ------------- | -------------- |
-| GND           | GND           |               | GND            |
-| +5V           | +5V           |               | +5V            |
-| PB0           | ROW0          |               |                |
-| PB1           | ROW1          |               |                |
-| PB2           | ROW2          |               |                |
-| PB3           | ROW3          |               |                |
-| PB4           | ROW4          |               |                |
-| PB5           | ROW5          |               |                |
-| PB6           | ROW6          |               |                |
-| PB7           | ROW7          |               |                |
+| GND           | GND       (1) |               | GND            |
+| +5V           | +5V       (4) |               | +5V            |
+| PB0           | ROW0     (12) |               |                |
+| PB1           | ROW1     (11) |               |                |
+| PB2           | ROW2     (10) |               |                |
+| PB3           | ROW3      (5) |               |                |
+| PB4           | ROW4      (8) |               |                |
+| PB5           | ROW5      (7) |               |                |
+| PB6           | ROW6      (6) |               |                |
+| PB7           | ROW7      (9) |               |                |
 | PC0           |               |               | KCLK           |
 | PC1           |               |               | KDAT           |
-| PC2           | /RESTORE      |               |                |
-| PC3           |               | /RESET        |                |
-| PD0           | COL0          |               |                |
-| PD1           | COL1          |               |                |
-| PD2           | COL2          |               |                |
-| PD3           | COL3          |               |                |
-| PD4           | COL4          |               |                |
-| PD5           | COL5          |               |                |
-| PD6           | COL6          |               |                |
-| PD7           | COL7          |               |                |
+| PC2           | /RESTORE  (3) |               |                |
+| PC3           |               | /RESET    (3) |                |
+| PD0           | COL0     (13) |               |                |
+| PD1           | COL1     (19) |               |                |
+| PD2           | COL2     (18) |               |                |
+| PD3           | COL3     (17) |               |                |
+| PD4           | COL4     (16) |               |                |
+| PD5           | COL5     (15) |               |                |
+| PD6           | COL6     (14) |               |                |
+| PD7           | COL7     (20) |               |                |
