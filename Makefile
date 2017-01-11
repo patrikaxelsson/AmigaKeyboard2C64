@@ -1,7 +1,7 @@
-# Name: Makefile
-# Author: <insert your name here>
-# Copyright: <insert your copyright message here>
-# License: <insert your license reference here>
+# Name: Makefike
+# Author: Patrik Axelsson
+# Copyright: Copyright 2016 Patrik Axelsson, David Eriksson
+# License: AmigaKeyboard2C64 is licensed under GNU General Public License, version 2
 
 # This is a prototype Makefile. Modify it according to your needs.
 # You should at least check the settings for
