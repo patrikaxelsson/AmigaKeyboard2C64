@@ -82,7 +82,7 @@ SCREEN  = $0400
 	lda #$2e
 	sta TEMPA
 	lda #$04
-	sta TEMPA+1		; set TEMPA to $0406 (start of where we wants the bits on screen)
+	sta TEMPA+1		; set TEMPA to $042e (start of where we wants the bits on screen)
 
 	lda #%11111111		; CIA#1 port A = outputs 
 	sta DDRA             
